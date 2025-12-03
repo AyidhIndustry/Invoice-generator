@@ -15,7 +15,7 @@ export const companyInfo: Company = {
   },
 }
 
-export const companyInifoArbi: Partial<Company> = {
+export const companyInfoArbi: Partial<Company> = {
   name: '​ورشة عايض محمد عايض الدوسري الصناعية',
   bankDetails: {
     bankName: 'مصرف الراجحي',
