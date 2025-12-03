@@ -15,19 +15,16 @@ const Invoices = () => {
   return (
     <ContentLayout>
       <div className="space-y-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
+       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              Invoices
-            </h1>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Manage your invoices and track payments
+            <h1 className="text-3xl font-bold">Invoices</h1>
+            <p className="text-muted-foreground">
+              Manage and store Invoices
             </p>
           </div>
           <Link href="/invoices/create">
-            <Button size="lg">
-              <Plus size={20} />
-              Create Invoice
+            <Button variant={'default'}>
+              <Plus size={20} /> Create Invoice
             </Button>
           </Link>
         </div>

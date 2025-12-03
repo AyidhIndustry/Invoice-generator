@@ -69,13 +69,6 @@ export default function Dashboard() {
       <div className="space-y-6">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboard</h1>
-          <div className="text-sm text-slate-500">
-            {isPending
-              ? 'Updating…'
-              : isError
-                ? 'Error loading stats'
-                : 'Current quarter stats'}
-          </div>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

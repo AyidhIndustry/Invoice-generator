@@ -90,7 +90,7 @@ export default function DeliveryNoteForm() {
         customer: inv.customer,
         items: inv.items ?? [], // <--- items preserved
       })),
-    [invoices]
+    [invoices],
   )
 
   const date = watch('date')
@@ -120,18 +120,22 @@ export default function DeliveryNoteForm() {
     setValue('customer.VATNumber', selected.customer?.VATNumber ?? '')
 
     // map invoice items to only title and quantity; fallback to single empty item if none
-    const mappedItems =
-      (selected.items &&
-        Array.isArray(selected.items) &&
-        selected.items.length > 0 &&
-        selected.items.map((it: any) => ({
-          title: String(it.title ?? ''),
-          quantity: typeof it.quantity === 'number' ? it.quantity : Number(it.qty ?? it.quantity ?? 1),
-        }))) ||
-      [{ title: '', quantity: 1 }]
+    const mappedItems = (selected.items &&
+      Array.isArray(selected.items) &&
+      selected.items.length > 0 &&
+      selected.items.map((it: any) => ({
+        title: String(it.title ?? ''),
+        quantity:
+          typeof it.quantity === 'number'
+            ? it.quantity
+            : Number(it.qty ?? it.quantity ?? 1),
+      }))) || [{ title: '', quantity: 1 }]
 
     // set items in the form
-    setValue('items', mappedItems as any, { shouldValidate: true, shouldDirty: true })
+    setValue('items', mappedItems as any, {
+      shouldValidate: true,
+      shouldDirty: true,
+    })
   }
 
   const onSubmit = async (data: DeliveryNote) => {
@@ -149,19 +153,14 @@ export default function DeliveryNoteForm() {
         <div className="space-y-2">
           <Label>Invoice Id</Label>
 
-          <Select
-            onValueChange={handleInvoiceSelect}
-            defaultValue="__manual__"
-          >
+          <Select onValueChange={handleInvoiceSelect} defaultValue="__manual__">
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select invoice (optional)" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Invoices</SelectLabel>
-                <SelectItem value="__manual__">
-                  Enter manually
-                </SelectItem>
+                <SelectItem value="__manual__">Enter manually</SelectItem>
                 {isInvoicesPending && (
                   <SelectItem value="__loading__" disabled>
                     Loading invoices...
@@ -273,11 +272,13 @@ export default function DeliveryNoteForm() {
         <h3 className="text-lg font-semibold mb-4">Customer Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          {/* Customer Name */}
+          <div className="w-full">
             <Label>Customer Name *</Label>
             <Input
               {...register('customer.name')}
               placeholder="Customer full name"
+              className="w-full"
             />
             {errors.customer?.name && (
               <p className="text-xs text-destructive mt-1">
@@ -286,11 +287,13 @@ export default function DeliveryNoteForm() {
             )}
           </div>
 
-          <div>
+          {/* Email */}
+          <div className="w-full">
             <Label>Email</Label>
             <Input
               {...register('customer.email')}
               placeholder="name@example.com"
+              className="w-full"
             />
             {errors.customer?.email && (
               <p className="text-xs text-destructive mt-1">
@@ -299,11 +302,13 @@ export default function DeliveryNoteForm() {
             )}
           </div>
 
-          <div>
+          {/* VAT Number */}
+          <div className="w-full">
             <Label>VAT Number</Label>
             <Input
               {...register('customer.VATNumber')}
               placeholder="VAT / Tax number (optional)"
+              className="w-full"
             />
             {errors.customer?.VATNumber && (
               <p className="text-xs text-destructive mt-1">
@@ -312,11 +317,13 @@ export default function DeliveryNoteForm() {
             )}
           </div>
 
-          <div className="col-span-2">
+          {/* Address — full width below md AND on md spans both columns */}
+          <div className="w-full col-span-1 md:col-span-2">
             <Label>Address</Label>
             <Textarea
               {...register('customer.address')}
               placeholder="Street, City, State, ZIP, Country"
+              className="w-full"
             />
             {errors.customer?.address && (
               <p className="text-xs text-destructive mt-1">

@@ -10,7 +10,10 @@ import { Plus, Trash2, Loader2 } from 'lucide-react'
 import { companyInfo } from '@/data/company-info'
 import { numberToWords } from 'convert-number-to-words'
 import { useCreateQuotation } from '@/hooks/quotations/use-create-quotation'
-import { CreateQuotationDTO, CreateQuotationDTOType } from '@/schemas/quotation.schema'
+import {
+  CreateQuotationDTO,
+  CreateQuotationDTOType,
+} from '@/schemas/quotation.schema'
 
 const defaultItem = () => ({
   title: '',
@@ -38,7 +41,9 @@ export default function CreateQuotationForm() {
   const [subject, setSubject] = useState('')
   const [notes, setNotes] = useState('')
   const [items, setItems] = useState([defaultItem()])
-  const [validationErrors, setValidationErrors] = useState<string[] | null>(null)
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(
+    null,
+  )
 
   const calculated = useMemo(() => {
     const computed = items.map((it) => {
@@ -47,18 +52,34 @@ export default function CreateQuotationForm() {
       const unitTotal = Number((qty * price).toFixed(2))
       const taxAmount = Number(((unitTotal * TAX_PERCENT) / 100).toFixed(2))
       const lineTotal = Number((unitTotal + taxAmount).toFixed(2))
-      return { ...it, quantity: qty, unitPrice: price, unitTotal, taxAmount, lineTotal }
+      return {
+        ...it,
+        quantity: qty,
+        unitPrice: price,
+        unitTotal,
+        taxAmount,
+        lineTotal,
+      }
     })
 
-    const subTotal = Number(computed.reduce((s, it) => s + it.unitTotal, 0).toFixed(2))
-    const taxTotal = Number(computed.reduce((s, it) => s + it.taxAmount, 0).toFixed(2))
+    const subTotal = Number(
+      computed.reduce((s, it) => s + it.unitTotal, 0).toFixed(2),
+    )
+    const taxTotal = Number(
+      computed.reduce((s, it) => s + it.taxAmount, 0).toFixed(2),
+    )
     const total = Number((subTotal + taxTotal).toFixed(2))
 
     return { computed, subTotal, taxTotal, total }
   }, [items, TAX_PERCENT])
 
-  function updateItem(index: number, patch: Partial<ReturnType<typeof defaultItem>>) {
-    setItems((prev) => prev.map((it, i) => (i === index ? { ...it, ...patch } : it)))
+  function updateItem(
+    index: number,
+    patch: Partial<ReturnType<typeof defaultItem>>,
+  ) {
+    setItems((prev) =>
+      prev.map((it, i) => (i === index ? { ...it, ...patch } : it)),
+    )
   }
 
   function addItem() {
@@ -66,7 +87,9 @@ export default function CreateQuotationForm() {
   }
 
   function removeItem(index: number) {
-    setItems((prev) => (prev.length === 1 ? prev : prev.filter((_, i) => i !== index)))
+    setItems((prev) =>
+      prev.length === 1 ? prev : prev.filter((_, i) => i !== index),
+    )
   }
 
   function buildPayload(): CreateQuotationDTOType {
@@ -115,7 +138,9 @@ export default function CreateQuotationForm() {
       } catch (err: any) {
         // attempt to extract messages
         if (err?.issues && Array.isArray(err.issues)) {
-          setValidationErrors(err.issues.map((i: any) => `${i.path.join('.')} — ${i.message}`))
+          setValidationErrors(
+            err.issues.map((i: any) => `${i.path.join('.')} — ${i.message}`),
+          )
         } else if (err?.message) {
           setValidationErrors([err.message])
         } else {
@@ -169,7 +194,6 @@ export default function CreateQuotationForm() {
     }
   }
 
-
   const fmt = (n: number) => `${n.toFixed(2)} SAR`
 
   return (
@@ -189,40 +213,49 @@ export default function CreateQuotationForm() {
         </div>
       </Card>
 
-      <Card className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Card className="p-6">
         <h3 className="text-lg font-semibold mb-3 col-span-2">Customer</h3>
-
-        <div>
-          <Label>Customer Name *</Label>
-          <Input
-            placeholder="Customer full name"
-            value={customer.name}
-            onChange={(e) => setCustomer((s) => ({ ...s, name: e.target.value }))}
-          />
-        </div>
-        <div>
-          <Label>Customer Email</Label>
-          <Input
-            placeholder="name@example.com"
-            value={customer.email}
-            onChange={(e) => setCustomer((s) => ({ ...s, email: e.target.value }))}
-          />
-        </div>
-        <div>
-          <Label>VAT Number</Label>
-          <Input
-            placeholder="VAT / Tax number (optional)"
-            value={customer.VATNumber}
-            onChange={(e) => setCustomer((s) => ({ ...s, VATNumber: e.target.value }))}
-          />
-        </div>
-        <div>
-          <Label>Address</Label>
-          <Textarea
-            placeholder="Street, City, State, ZIP, Country"
-            value={customer.address}
-            onChange={(e) => setCustomer((s) => ({ ...s, address: e.target.value }))}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Customer Name *</Label>
+            <Input
+              placeholder="Customer full name"
+              value={customer.name}
+              onChange={(e) =>
+                setCustomer((s) => ({ ...s, name: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Customer Email</Label>
+            <Input
+              placeholder="name@example.com"
+              value={customer.email}
+              onChange={(e) =>
+                setCustomer((s) => ({ ...s, email: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>VAT Number</Label>
+            <Input
+              placeholder="VAT / Tax number (optional)"
+              value={customer.VATNumber}
+              onChange={(e) =>
+                setCustomer((s) => ({ ...s, VATNumber: e.target.value }))
+              }
+            />
+          </div>
+          <div>
+            <Label>Address</Label>
+            <Textarea
+              placeholder="Street, City, State, ZIP, Country"
+              value={customer.address}
+              onChange={(e) =>
+                setCustomer((s) => ({ ...s, address: e.target.value }))
+              }
+            />
+          </div>
         </div>
       </Card>
 
@@ -238,79 +271,122 @@ export default function CreateQuotationForm() {
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4">Items</h3>
 
-        <table className="w-full text-sm">
-          <thead className="border-b-2 border-border bg-muted">
-            <tr>
-              <th style={{ width: '40%' }} className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm">Title</th>
-              <th style={{ width: '10%' }} className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm">Qty</th>
-              <th style={{ width: '15%' }} className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm">Unit Price</th>
-              <th style={{ width: '15%' }} className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm">Tax ({TAX_PERCENT}%)</th>
-              <th style={{ width: '15%' }} className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm">Line Total</th>
-              <th style={{ width: '5%' }}></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {calculated.computed.map((item, idx) => (
-              <tr key={idx} className="border-b border-border hover:bg-muted/50">
-                <td className="py-3 px-2 md:px-4">
-                  <Input
-                    placeholder="Item title or description"
-                    className="h-8 border text-xs md:text-sm"
-                    value={item.title}
-                    onChange={(e) => updateItem(idx, { title: e.target.value })}
-                  />
-                </td>
-
-                <td className="py-3 px-2 md:px-4">
-                  <Input
-                    type="number"
-                    placeholder="1"
-                    className="h-8 border text-xs md:text-sm"
-                    value={String(item.quantity)}
-                    min={0}
-                    onChange={(e) => updateItem(idx, { quantity: Math.max(0, Number(e.target.value) || 0) })}
-                  />
-                </td>
-
-                <td className="py-3 px-2 md:px-4">
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    className="h-8 border text-xs md:text-sm"
-                    value={String(item.unitPrice)}
-                    onChange={(e) => updateItem(idx, { unitPrice: Number(e.target.value) || 0 })}
-                  />
-                </td>
-
-                <td className="py-3 px-2 md:px-4">
-                  <div className="h-8 flex items-center text-xs md:text-sm">{item.taxAmount.toFixed(2)}</div>
-                </td>
-
-                <td className="py-3 px-2 md:px-4">
-                  <div className="h-8 flex items-center text-xs md:text-sm font-semibold">
-                    {item.lineTotal.toFixed(2)} SAR
-                  </div>
-                </td>
-
-                <td className="py-3 px-2 md:px-4 text-center">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeItem(idx)}
-                    className="h-8 w-8 p-0 hover:text-destructive"
-                  >
-                    <Trash2 size={16} className="text-red-500" />
-                  </Button>
-                </td>
+        <div className="w-full overflow-x-auto">
+          <table className="w-full text-sm min-w-[700px]">
+            <thead className="border-b-2 border-border bg-muted">
+              <tr>
+                <th
+                  style={{ width: '40%' }}
+                  className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm"
+                >
+                  Title
+                </th>
+                <th
+                  style={{ width: '10%' }}
+                  className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm"
+                >
+                  Qty
+                </th>
+                <th
+                  style={{ width: '15%' }}
+                  className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm"
+                >
+                  Unit Price
+                </th>
+                <th
+                  style={{ width: '15%' }}
+                  className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm"
+                >
+                  Tax ({TAX_PERCENT}%)
+                </th>
+                <th
+                  style={{ width: '15%' }}
+                  className="text-left py-3 px-2 md:px-4 font-semibold text-xs md:text-sm"
+                >
+                  Line Total
+                </th>
+                <th style={{ width: '5%' }}></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
 
-        <Button type="button" onClick={addItem} variant="outline" size="sm" className="mt-4 gap-2">
+            <tbody>
+              {calculated.computed.map((item, idx) => (
+                <tr
+                  key={idx}
+                  className="border-b border-border hover:bg-muted/50"
+                >
+                  <td className="py-3 px-2 md:px-4">
+                    <Input
+                      placeholder="Item title or description"
+                      className="h-8 border text-xs md:text-sm w-full"
+                      value={item.title}
+                      onChange={(e) =>
+                        updateItem(idx, { title: e.target.value })
+                      }
+                    />
+                  </td>
+                  <td className="py-3 px-2 md:px-4">
+                    <Input
+                      type="number"
+                      placeholder="1"
+                      className="h-8 border text-xs md:text-sm w-full"
+                      value={String(item.quantity)}
+                      min={0}
+                      onChange={(e) =>
+                        updateItem(idx, {
+                          quantity: Math.max(0, Number(e.target.value) || 0),
+                        })
+                      }
+                    />
+                  </td>
+                  <td className="py-3 px-2 md:px-4">
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      className="h-8 border text-xs md:text-sm w-full"
+                      value={String(item.unitPrice)}
+                      onChange={(e) =>
+                        updateItem(idx, {
+                          unitPrice: Number(e.target.value) || 0,
+                        })
+                      }
+                    />
+                  </td>
+                  <td className="py-3 px-2 md:px-4">
+                    <div className="h-8 flex items-center text-xs md:text-sm">
+                      {item.taxAmount.toFixed(2)}
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 md:px-4">
+                    <div className="h-8 flex items-center text-xs md:text-sm font-semibold">
+                      {item.lineTotal.toFixed(2)} SAR
+                    </div>
+                  </td>
+                  <td className="py-3 px-2 md:px-4 text-center">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(idx)}
+                      className="h-8 w-8 p-0 hover:text-destructive"
+                    >
+                      <Trash2 size={16} className="text-red-500" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <Button
+          type="button"
+          onClick={addItem}
+          variant="outline"
+          size="sm"
+          className="mt-4 gap-2"
+        >
           <Plus size={16} /> Add Item
         </Button>
       </Card>
@@ -319,23 +395,33 @@ export default function CreateQuotationForm() {
         <div className="space-y-3">
           <div className="flex justify-between">
             <span className="text-sm">Subtotal</span>
-            <strong className="text-sm md:text-base lg:text-lg">{fmt(calculated.subTotal)}</strong>
+            <strong className="text-sm md:text-base lg:text-lg">
+              {fmt(calculated.subTotal)}
+            </strong>
           </div>
 
           <div className="flex justify-between items-center">
             <span className="text-sm">Tax total</span>
-            <strong className="text-sm md:text-base lg:text-lg">{fmt(calculated.taxTotal)}</strong>
+            <strong className="text-sm md:text-base lg:text-lg">
+              {fmt(calculated.taxTotal)}
+            </strong>
           </div>
 
           <div className="flex justify-between pt-2 border-t border-border">
             <span className="text-base font-medium">Total</span>
-            <strong className="font-semibold text-lg md:text-xl lg:text-2xl">{fmt(calculated.total)}</strong>
+            <strong className="font-semibold text-lg md:text-xl lg:text-2xl">
+              {fmt(calculated.total)}
+            </strong>
           </div>
         </div>
         <div className="pt-3 border-t border-border flex flex-col items-end">
-          <span className="text-sm font-medium text-muted-foreground">Amount in words:</span>
+          <span className="text-sm font-medium text-muted-foreground">
+            Amount in words:
+          </span>
           <p className="text-sm md:text-base font-semibold mt-1">
-            {calculated.total ? numberToWords(Number(calculated.total)).toUpperCase() : ''}
+            {calculated.total
+              ? numberToWords(Number(calculated.total)).toUpperCase()
+              : ''}
           </p>
         </div>
       </Card>
@@ -366,7 +452,11 @@ export default function CreateQuotationForm() {
       )}
 
       <div>
-        <Button type="submit" className="mt-6 flex items-center justify-center" disabled={isPending}>
+        <Button
+          type="submit"
+          className="mt-6 flex items-center justify-center"
+          disabled={isPending}
+        >
           {isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin mr-2" /> Creating...

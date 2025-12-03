@@ -19,7 +19,7 @@ export function Sidebar() {
   return (
     <>
       <button
-        className="md:hidden fixed top-4 left-4 z-40 p-2 hover:bg-muted rounded-lg"
+        className="md:hidden fixed top-4 right-4 z-40 p-2 hover:bg-muted rounded-lg"
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}

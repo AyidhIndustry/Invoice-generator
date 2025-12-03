@@ -54,11 +54,11 @@ export default function CreateInvoiceForm() {
       taxTotal: 0,
       total: 0,
       remarks: '',
-      bankDetails: {
-        bankName: '',
-        IBAN: '',
-        accountNumber: '',
-      },
+      // bankDetails: {
+      //   bankName: '',
+      //   IBAN: '',
+      //   accountNumber: '',
+      // },
     },
   })
 
@@ -182,7 +182,7 @@ export default function CreateInvoiceForm() {
         </CardHeader>
 
         <CardContent>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <Label>Date</Label>
               <Popover>
@@ -286,93 +286,100 @@ export default function CreateInvoiceForm() {
           <CardTitle>Items (tax {taxPercent}% per item)</CardTitle>
         </CardHeader>
 
-        <CardContent>
-          <table className="w-full text-sm">
-            <thead className="border-b-2 border-border bg-muted">
-              <tr>
-                <th className="text-left py-3 px-2 md:px-4">Title</th>
-                <th className="text-left py-3 px-2 md:px-4 w-24">Qty</th>
-                <th className="text-left py-3 px-2 md:px-4 w-32">Unit Price</th>
-                <th className="text-left py-3 px-2 md:px-4 w-32">Tax</th>
-                <th className="text-left py-3 px-2 md:px-4 w-32">Unit Total</th>
-                <th className="w-12" />
-              </tr>
-            </thead>
+        <CardContent className="px-6">
+          {/* Scrollable container */}
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-sm min-w-[750px]">
+              <thead className="border-b-2 border-border bg-muted">
+                <tr>
+                  <th className="text-left py-3 px-2 md:px-4">Title</th>
+                  <th className="text-left py-3 px-2 md:px-4 w-24">Qty</th>
+                  <th className="text-left py-3 px-2 md:px-4 w-32">
+                    Unit Price
+                  </th>
+                  <th className="text-left py-3 px-2 md:px-4 w-32">Tax</th>
+                  <th className="text-left py-3 px-2 md:px-4 w-32">
+                    Unit Total
+                  </th>
+                  <th className="w-12" />
+                </tr>
+              </thead>
 
-            <tbody>
-              {items.map((it, idx) => {
-                const qty = Number(watchedItems?.[idx]?.quantity ?? 0)
-                const price = Number(watchedItems?.[idx]?.unitPrice ?? 0)
-                const unitTotal = Number((qty * price).toFixed(2))
-                const taxAmount = Number(watchedItems?.[idx]?.taxAmount ?? 0)
+              <tbody>
+                {items.map((it, idx) => {
+                  const qty = Number(watchedItems?.[idx]?.quantity ?? 0)
+                  const price = Number(watchedItems?.[idx]?.unitPrice ?? 0)
+                  const unitTotal = Number((qty * price).toFixed(2))
+                  const taxAmount = Number(watchedItems?.[idx]?.taxAmount ?? 0)
 
-                return (
-                  <tr
-                    key={it.id}
-                    className="border-b border-border hover:bg-muted/50"
-                  >
-                    <td className="py-3 px-2 md:px-4">
-                      <Input
-                        {...register(`items.${idx}.title` as const)}
-                        placeholder="Item title"
-                      />
-                    </td>
+                  return (
+                    <tr
+                      key={it.id}
+                      className="border-b border-border hover:bg-muted/50"
+                    >
+                      <td className="py-3 px-2 md:px-4">
+                        <Input
+                          {...register(`items.${idx}.title` as const)}
+                          placeholder="Item title"
+                          className="w-full"
+                        />
+                      </td>
 
-                    <td className="py-3 px-2 md:px-4">
-                      <Input
-                        type="number"
-                        {...register(`items.${idx}.quantity` as const, {
-                          valueAsNumber: true,
-                        })}
-                        className="h-8"
-                      />
-                    </td>
+                      <td className="py-3 px-2 md:px-4">
+                        <Input
+                          type="number"
+                          {...register(`items.${idx}.quantity` as const, {
+                            valueAsNumber: true,
+                          })}
+                          className="h-8 w-full"
+                        />
+                      </td>
 
-                    <td className="py-3 px-2 md:px-4">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...register(`items.${idx}.unitPrice` as const, {
-                          valueAsNumber: true,
-                        })}
-                        className="h-8"
-                      />
-                    </td>
+                      <td className="py-3 px-2 md:px-4">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...register(`items.${idx}.unitPrice` as const, {
+                            valueAsNumber: true,
+                          })}
+                          className="h-8 w-full"
+                        />
+                      </td>
 
-                    {/* Tax is computed automatically and shown read-only */}
-                    <td className="py-3 px-2 md:px-4">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={taxAmount.toFixed(2)}
-                        readOnly
-                        className="h-8 bg-muted/30"
-                        onChange={() => {}}
-                      />
-                    </td>
+                      <td className="py-3 px-2 md:px-4">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={taxAmount.toFixed(2)}
+                          readOnly
+                          className="h-8 bg-muted/30 w-full"
+                          onChange={() => {}}
+                        />
+                      </td>
 
-                    <td className="py-3 px-2 md:px-4">
-                      <div className="h-8 flex items-center">
-                        {unitTotal.toFixed(2)}
-                      </div>
-                    </td>
+                      <td className="py-3 px-2 md:px-4">
+                        <div className="h-8 flex items-center">
+                          {unitTotal.toFixed(2)}
+                        </div>
+                      </td>
 
-                    <td className="py-3 px-2 md:px-4 text-center">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(idx)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      <td className="py-3 px-2 md:px-4 text-center">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => remove(idx)}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
 
           <div className="mt-4">
             <Button
@@ -432,7 +439,7 @@ export default function CreateInvoiceForm() {
             </div>
           </div>
 
-          {/* Optional bank details */}
+          {/* Optional bank details
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <Label>Bank Name</Label>
@@ -457,7 +464,7 @@ export default function CreateInvoiceForm() {
                 placeholder="Account no. (optional)"
               />
             </div>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
 
@@ -477,11 +484,7 @@ export default function CreateInvoiceForm() {
       </Card>
 
       <div className="flex items-end justify-end">
-        <Button
-          type="submit"
-          className="ml-auto"
-          disabled={isPending}
-        >
+        <Button type="submit" className="ml-auto" disabled={isPending}>
           {isPending ? 'Creating...' : 'Create Invoice'}
         </Button>
       </div>
