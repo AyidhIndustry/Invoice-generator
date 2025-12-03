@@ -1,10 +1,17 @@
+'use client'
 import { Plus } from 'lucide-react'
 import ContentLayout from '../layout/content.layout'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import InvoicesTable from './invoices.table'
+import { useState } from 'react'
+import { useGetInvoices } from '@/hooks/invoices/use-get-invoice'
+import { FilterType } from '@/schemas/filter.type'
+import TableFilter from '../filter'
 
 const Invoices = () => {
+  const [filters, setFilters] = useState<FilterType>({ type: 'all' })
+  const { data: invoices, isPending, isError } = useGetInvoices(filters)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -24,7 +31,12 @@ const Invoices = () => {
             </Button>
           </Link>
         </div>
-        <InvoicesTable />
+        <TableFilter filters={filters} setFilters={setFilters} />
+        <InvoicesTable
+          invoices={invoices}
+          isError={isError}
+          isPending={isPending}
+        />
       </div>
     </ContentLayout>
   )

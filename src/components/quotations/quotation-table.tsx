@@ -12,6 +12,8 @@ import { SkeletonTable } from '../ui/skeleton-table'
 import { formatTimestamp } from '@/lib/format-timestring'
 import { Button } from '../ui/button'
 import { Printer, Trash2 } from 'lucide-react'
+import { useDeleteQuotation } from '@/hooks/quotations/use-delete-quotation'
+import DeleteItemDialog from '../dialogs/delete-item.dialog'
 
 const QuotationTable = ({
   quotations,
@@ -22,10 +24,15 @@ const QuotationTable = ({
   isPending: boolean
   isError: boolean
 }) => {
+  const {
+    mutate: deleteQuotation,
+    isPending: isQuotationDeletePending,
+    isError: isQuotationDeleteError,
+  } = useDeleteQuotation()
   return (
     <div className="border rounded-md">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted/70">
           <TableRow>
             <TableHead>#ID</TableHead>
             <TableHead>Customer</TableHead>
@@ -88,20 +95,13 @@ const QuotationTable = ({
                       </Button>
 
                       {/* DELETE */}
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        //   onClick={() => deleteInvoice(inv.id)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-
-                      {/* HIDDEN PRINTABLE DOM
-                        <div style={{ position: "absolute", left: -9999, top: 0 }}>
-                          <div ref={contentRef}>
-                            <PrintableInvoice invoice={inv} />
-                          </div>
-                        </div> */}
+                      <DeleteItemDialog
+                        name="Quotation"
+                        id={quotation.id as string}
+                        onDelete={deleteQuotation}
+                        isPending={isQuotationDeletePending}
+                        isError={isQuotationDeleteError}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

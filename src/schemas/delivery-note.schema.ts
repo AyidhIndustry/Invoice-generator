@@ -4,7 +4,7 @@ import { PaymentTypeEnum } from "./enums/payment-type.enum"
 
 export const DeliveryNoteSchema = z.object({
   id: z.string().optional(),
-  invId: z.string(),
+  invId: z.string().optional(),
   date: z.date(),
   dueDate: z.date(),
   customer: CustomerSchema,

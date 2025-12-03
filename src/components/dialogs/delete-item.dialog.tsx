@@ -11,15 +11,18 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Trash2, Loader2 } from 'lucide-react'
+import { DialogClose } from '@radix-ui/react-dialog'
 
 interface DeleteItemDialogProps {
+  id: string
   name?: string
-  onDelete: () => void | Promise<void>
+  onDelete: (id: string) => void | Promise<void>
   isPending: boolean
   isError?: boolean | string
 }
 
 const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
+  id,
   name,
   onDelete,
   isPending,
@@ -29,13 +32,13 @@ const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="destructive" size="sm">
-          <Trash2 className="mr-2 h-4 w-4" />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Delete {name ? `"${name}"` : 'this item'}?</DialogTitle>
+          <DialogTitle>Delete {name ? name : 'this item'}?</DialogTitle>
           <DialogDescription>
             This action is permanent. Are you sure you want to delete
             {name ?? 'this item'}?
@@ -52,13 +55,15 @@ const DeleteItemDialog: React.FC<DeleteItemDialogProps> = ({
         ) : null}
 
         <DialogFooter className="mt-6">
-          <Button variant="ghost" disabled={isPending}>
-            Cancel
-          </Button>
+          <DialogClose asChild>
+            <Button variant="ghost" disabled={isPending}>
+              Cancel
+            </Button>
+          </DialogClose>
 
           <Button
             variant="destructive"
-            onClick={onDelete}
+            onClick={() => onDelete(id)}
             disabled={isPending}
             className="flex items-center gap-2"
           >
