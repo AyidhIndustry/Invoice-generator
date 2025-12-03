@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'AYIDH Invoice & Quotation Manager',
+  title: 'Ayidh Invoice & Quotation Manager',
   description:
     'Professional invoice and quotation management system for Ayidh Mohammed Ayidh Al-Dossary Industrial Services',
 }
@@ -26,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

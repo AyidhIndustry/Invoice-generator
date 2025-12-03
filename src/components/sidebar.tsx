@@ -14,7 +14,7 @@ import { Button } from './ui/button'
 export function Sidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const {logout} = useAuth()
+  const { logout } = useAuth()
 
   return (
     <>
@@ -77,9 +77,9 @@ export function Sidebar() {
               logout()
               setIsOpen(false)
             }}
-            className='w-full'
+            className="w-full"
           >
-            <Power/>
+            <Power />
             Logout
           </Button>
         </div>
