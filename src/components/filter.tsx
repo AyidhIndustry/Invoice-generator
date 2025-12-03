@@ -1,117 +1,133 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { format } from 'date-fns'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { FilterType, Mode } from '@/schemas/filter.type'
 import { Label } from '@/components/ui/label'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectTrigger, SelectValue, SelectContent,
+  SelectGroup, SelectItem,
 } from '@/components/ui/select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { MonthPicker } from './ui/month-picker'
-
-export type FilterState = {
-  type: 'all' | 'date' | 'month'
-  date?: string   // ISO: "YYYY-MM-DD"
-  month?: string  // "YYYY-MM"
-}
+import { MonthPicker } from './ui/month-picker' 
 
 type Props = {
-  /**
-   * Called when user clicks Apply.
-   * Parent should pass a mutation/refetch handler that accepts the filter object.
-   */
-  onApply: (f: FilterState) => void
+  filters: FilterType
+  setFilters: React.Dispatch<React.SetStateAction<FilterType>>
+  refetch?: () => void
+  isFetching?: boolean
+  onReset?: () => void
 }
 
-export default function Filter({ onApply }: Props) {
-  const [state, setState] = useState<FilterState>({ type: 'all' })
+const TableFilter: React.FC<Props> = ({
+  filters,
+  setFilters,
+  refetch = () => {},
+  isFetching = false,
+  onReset = () => {},
+}) => {
 
-  // handlers
-  const setType = (t: FilterState['type']) =>
-    setState(prev => ({ ...prev, type: t, // clear the other values
-      ...(t === 'date' ? { month: undefined } : {}),
-      ...(t === 'month' ? { date: undefined } : {}),
-    }))
+  const currentType = filters.type as Mode
 
-  const setDate = (d?: Date) => {
-    if (!d) return setState(prev => ({ ...prev, date: undefined }))
-    const iso = format(d, 'yyyy-MM-dd')
-    setState(prev => ({ ...prev, type: 'date', date: iso, month: undefined }))
+  const currentDate =
+    filters.type === 'date' ? (filters as any).date as Date | undefined : undefined
+
+  const currentMonth =
+    filters.type === 'month' &&
+    typeof (filters as any).year === 'number' &&
+    typeof (filters as any).month === 'number'
+      ? `${(filters as any).year}-${String((filters as any).month).padStart(2, '0')}`
+      : undefined
+
+  const handleType = (type: Mode) => {
+    if (type === 'all') return setFilters({ type: 'all' })
+    if (type === 'date') return setFilters({ type: 'date', date: undefined as any })
+    if (type === 'month') return setFilters({ type: 'month', year: undefined as any, month: undefined as any } as any)
   }
 
-  const setMonth = (m?: string) => {
-    if (!m) return setState(prev => ({ ...prev, month: undefined }))
-    setState(prev => ({ ...prev, type: 'month', month: m, date: undefined }))
+  const handleDate = (d?: Date) => {
+    if (!d) return setFilters({ type: 'all' })
+    setFilters({ type: 'date', date: d })
   }
 
-  const handleReset = () => setState({ type: 'all' })
-  const handleApply = () => onApply(state)
+  const handleMonth = (val?: string) => {
+    if (!val) return setFilters({ type: 'all' })
+    const [y, m] = val.split('-')
+    setFilters({ type: 'month', year: Number(y), month: Number(m) })
+  }
+
+  const resetFilters = () => {
+    setFilters({ type: 'all' })
+    onReset()
+  }
+
+  const apply = () => refetch?.()
 
   return (
-    <div className="flex flex-wrap gap-4 items-end">
-      <div className="min-w-[180px]">
+    <div className="flex items-start justify-between">
+      <div>
         <Label>Filter</Label>
-        <Select value={state.type} onValueChange={(v) => setType(v as any)}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="date">Date</SelectItem>
-              <SelectItem value="month">Month</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
 
-      {state.type === 'date' && (
-        <div>
-          <Label>Select date</Label>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 mt-2">
+          {/* TYPE SELECTOR */}
+          <Select value={currentType} onValueChange={(v) => handleType(v as Mode)}>
+            <SelectTrigger className="w-36">
+              <SelectValue />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="date">Date</SelectItem>
+                <SelectItem value="month">Month</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          {/* DATE PICKER */}
+          {currentType === 'date' && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="h-10 w-[200px] justify-start">
-                  {state.date ? format(new Date(state.date), 'PPP') : 'Pick a date'}
+                <Button variant="outline" className="min-w-[180px]">
+                  {currentDate ? format(currentDate, 'PPP') : 'Pick a date'}
                 </Button>
               </PopoverTrigger>
 
-              <PopoverContent className="p-0">
+              <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={state.date ? new Date(state.date) : undefined}
-                  onSelect={(d) => setDate(d as Date)}
+                  selected={currentDate}
+                  onSelect={(d) => handleDate(d as Date)}
                 />
               </PopoverContent>
             </Popover>
+          )}
 
-            {state.date && <Button size="sm" variant="ghost" onClick={() => setDate(undefined)}>Clear</Button>}
-          </div>
+          {/* MONTH PICKER */}
+          {currentType === 'month' && (
+            <MonthPicker
+              value={currentMonth}
+              onChange={handleMonth}
+              className="min-w-[200px]"
+            />
+          )}
         </div>
-      )}
+      </div>
 
-      {state.type === 'month' && (
-        <div>
-          <Label>Select month</Label>
-          <div className="flex items-center gap-2">
-            <MonthPicker value={state.month} onChange={(v) => setMonth(v)} />
-            {state.month && <Button size="sm" variant="ghost" onClick={() => setMonth(undefined)}>Clear</Button>}
-          </div>
-        </div>
-      )}
+      {/* ACTION BUTTONS */}
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" onClick={resetFilters}>
+          Reset
+        </Button>
 
-      <div className="ml-auto flex gap-2">
-        <Button variant="outline" onClick={handleReset}>Reset</Button>
-        <Button onClick={handleApply}>Apply</Button>
+        <Button onClick={apply} disabled={isFetching}>
+          {isFetching ? 'Refreshing…' : 'Apply'}
+        </Button>
       </div>
     </div>
   )
 }
+
+export default TableFilter

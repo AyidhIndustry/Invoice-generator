@@ -14,6 +14,7 @@ export const QuotationSchema = z.object({
   taxTotal: z.number().min(0, 'Tax total cannot be negative').optional(),
   total: z.number().min(0, 'Total cannot be negative'),
   details: z.string().optional(),
+  createdAt: z.date().optional(),
 })
 
 export type Quotation = z.infer<typeof QuotationSchema>

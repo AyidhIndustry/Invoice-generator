@@ -3,7 +3,7 @@ import ContentLayout from '../layout/content.layout'
 const QuarterlyReport = () => {
   return (
     <ContentLayout>
-      <div>QuarterlyReport</div>
+      <h1>Coming Soon...</h1>
     </ContentLayout>
   )
 }

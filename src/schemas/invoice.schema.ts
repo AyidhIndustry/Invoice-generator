@@ -2,7 +2,6 @@ import z from 'zod'
 import { CompanySchema } from './company.schema'
 import { CustomerSchema } from './customer.schema'
 import { SellerSchema } from './seller.schema'
-import { PaymentTypeEnum } from './enums/payment-type.enum'
 import { ItemSchema } from './item.schema'
 
 const BankDetailsSchema = (CompanySchema.shape as any)

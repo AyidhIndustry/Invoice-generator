@@ -1,11 +1,192 @@
-import ContentLayout from '../layout/content.layout'
+'use client'
 
-const Dashboard = () => {
+import { useMemo } from 'react'
+import ContentLayout from '../layout/content.layout'
+import { CardContent } from '@/components/ui/card'
+import {
+  Loader2,
+  FileText,
+  ShoppingCart,
+  FilePlus2,
+  Truck,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useGetStats } from '@/hooks/use-get-stats'
+import { Button } from '../ui/button'
+import Link from 'next/link'
+
+const StatBox = ({
+  title,
+  value,
+  subtitle,
+
+  gradient,
+  loading,
+}: {
+  title: string
+  value?: string | number
+  subtitle?: string
+  gradient?: string
+  loading?: boolean
+}) => {
   return (
-    <ContentLayout>
-      <div>Dashboard</div>
-    </ContentLayout>
+    <div className="rounded-2xl shadow-md overflow-hidden border border-transparent hover:shadow-xl transition-shadow duration-200 bg-white/40 backdrop-blur-sm">
+      <CardContent
+        className={cn('p-5 flex items-center gap-4 h-full', gradient)}
+      >
+        <div className="flex flex-col">
+          <div className="text-sm text-slate-600">{title}</div>
+          <div className="mt-1 text-2xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
+            {loading ? <Loader2 className="animate-spin h-6 w-6" /> : value}
+          </div>
+          {subtitle && (
+            <div className="text-xs mt-1 text-slate-500">{subtitle}</div>
+          )}
+        </div>
+      </CardContent>
+    </div>
   )
 }
 
-export default Dashboard
+export default function Dashboard() {
+  const query = useGetStats()
+
+  const isPending = Boolean(query.isLoading || query.isFetching)
+  const isError = Boolean(query.isError)
+
+  const data = useMemo(() => {
+    const d =
+      (query.data as {
+        invoiceCount?: number
+        quotationCount?: number
+        purchaseCount?: number
+        totalTaxPaid?: number
+      }) ?? {}
+    return {
+      invoiceCount: d.invoiceCount ?? 0,
+      quotationCount: d.quotationCount ?? 0,
+      purchaseCount: d.purchaseCount ?? 0,
+      totalTaxPaid: d.totalTaxPaid ?? 0,
+    }
+  }, [query.data])
+
+  const nf = useMemo(
+    () =>
+      new Intl.NumberFormat('en-GB', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    [],
+  )
+
+  const money = useMemo(
+    () =>
+      new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'SAR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+    [],
+  )
+
+  return (
+    <ContentLayout>
+      <div className="space-y-6">
+        <header className="flex items-center justify-between">
+          <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboard</h1>
+          <div className="text-sm text-slate-500">
+            {isPending
+              ? 'Updating…'
+              : isError
+                ? 'Error loading stats'
+                : 'Current quarter stats'}
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <StatBox
+            title="Invoices"
+            value={isPending ? undefined : nf.format(data.invoiceCount)}
+            subtitle="Created this quarter"
+            loading={isPending}
+            gradient="bg-blue-100 text-blue-900"
+          />{' '}
+          <StatBox
+            title="Quotations"
+            value={isPending ? undefined : nf.format(data.quotationCount)}
+            subtitle="Created this quarter"
+            loading={isPending}
+            gradient="bg-green-100 text-green-900"
+          />{' '}
+          <StatBox
+            title="Purchases"
+            value={isPending ? undefined : nf.format(data.purchaseCount)}
+            subtitle="Created this quarter"
+            loading={isPending}
+            gradient="bg-orange-100 text-orange-900"
+          />{' '}
+          <StatBox
+            title="Total Tax Paid"
+            value={isPending ? undefined : money.format(data.totalTaxPaid)}
+            subtitle="Sum of taxTotal in purchases"
+            loading={isPending}
+            gradient="bg-purple-100 text-purple-900"
+          />
+        </div>
+
+        {isError && (
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+            There was an error loading stats. Please try again.
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <Link href="/invoices/create" className="w-full">
+            <Button
+              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              variant="secondary"
+              style={{ background: 'linear-gradient(90deg,#2563eb,#60a5fa)' }}
+            >
+              <FileText className="h-5 w-5 text-white" />
+              Create Invoice
+            </Button>
+          </Link>
+
+          <Link href="/quotations/create" className="w-full">
+            <Button
+              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              variant="secondary"
+              style={{ background: 'linear-gradient(90deg,#16a34a,#4ade80)' }}
+            >
+              <FilePlus2 className="h-5 w-5 text-white" />
+              Create Quotation
+            </Button>
+          </Link>
+
+          <Link href="/purchases/create" className="w-full">
+            <Button
+              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              variant="secondary"
+              style={{ background: 'linear-gradient(90deg,#f97316,#fb923c)' }}
+            >
+              <ShoppingCart className="h-5 w-5 text-white" />
+              Create Purchase
+            </Button>
+          </Link>
+
+          <Link href="/delivery-notes/create" className="w-full">
+            <Button
+              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              variant="secondary"
+              style={{ background: 'linear-gradient(90deg,#7c3aed,#a78bfa)' }}
+            >
+              <Truck className="h-5 w-5 text-white" />
+              Create Delivery Note
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </ContentLayout>
+  )
+}

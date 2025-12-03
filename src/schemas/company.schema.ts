@@ -7,7 +7,7 @@ export const CompanySchema = z.object({
   phoneNumber: z.string().optional(),
   VATNumber: z.string().optional(),
   CRNumber: z.string().optional(),
-
+  website: z.string().optional(),
   bankDetails: z.object({
     bankName: z.string().min(1, 'Bank name is required'),
     IBAN: z.string().min(1, 'IBAN is required'),
