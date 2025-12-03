@@ -1,6 +1,5 @@
 import { db } from '@/lib/firebase-client';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
-import { useQuery } from '@tanstack/react-query';
 
 const now = new Date();
 const currentYear = now.getFullYear();

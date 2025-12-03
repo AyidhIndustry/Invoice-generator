@@ -1,25 +1,18 @@
 'use client'
 
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import ContentLayout from '../layout/content.layout'
 import { CardContent } from '@/components/ui/card'
-import {
-  Loader2,
-  FileText,
-  ShoppingCart,
-  FilePlus2,
-  Truck,
-} from 'lucide-react'
+import { Loader2, FileText, ShoppingCart, FilePlus2, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useGetStats } from '@/hooks/use-get-stats'
 import { Button } from '../ui/button'
 import Link from 'next/link'
+import { useStats } from '@/context/stat-context'
 
 const StatBox = ({
   title,
   value,
   subtitle,
-
   gradient,
   loading,
 }: {
@@ -49,26 +42,7 @@ const StatBox = ({
 }
 
 export default function Dashboard() {
-  const query = useGetStats()
-
-  const isPending = Boolean(query.isLoading || query.isFetching)
-  const isError = Boolean(query.isError)
-
-  const data = useMemo(() => {
-    const d =
-      (query.data as {
-        invoiceCount?: number
-        quotationCount?: number
-        purchaseCount?: number
-        totalTaxPaid?: number
-      }) ?? {}
-    return {
-      invoiceCount: d.invoiceCount ?? 0,
-      quotationCount: d.quotationCount ?? 0,
-      purchaseCount: d.purchaseCount ?? 0,
-      totalTaxPaid: d.totalTaxPaid ?? 0,
-    }
-  }, [query.data])
+  const { data, isPending, isError } = useStats()
 
   const nf = useMemo(
     () =>
@@ -111,21 +85,21 @@ export default function Dashboard() {
             subtitle="Created this quarter"
             loading={isPending}
             gradient="bg-blue-100 text-blue-900"
-          />{' '}
+          />
           <StatBox
             title="Quotations"
             value={isPending ? undefined : nf.format(data.quotationCount)}
             subtitle="Created this quarter"
             loading={isPending}
             gradient="bg-green-100 text-green-900"
-          />{' '}
+          />
           <StatBox
             title="Purchases"
             value={isPending ? undefined : nf.format(data.purchaseCount)}
             subtitle="Created this quarter"
             loading={isPending}
             gradient="bg-orange-100 text-orange-900"
-          />{' '}
+          />
           <StatBox
             title="Total Tax Paid"
             value={isPending ? undefined : money.format(data.totalTaxPaid)}
@@ -144,7 +118,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
           <Link href="/invoices/create" className="w-full">
             <Button
-              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              className="w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
               variant="secondary"
               style={{ background: 'linear-gradient(90deg,#2563eb,#60a5fa)' }}
             >
@@ -155,7 +129,7 @@ export default function Dashboard() {
 
           <Link href="/quotations/create" className="w-full">
             <Button
-              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              className="w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
               variant="secondary"
               style={{ background: 'linear-gradient(90deg,#16a34a,#4ade80)' }}
             >
@@ -166,7 +140,7 @@ export default function Dashboard() {
 
           <Link href="/purchases/create" className="w-full">
             <Button
-              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              className="w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
               variant="secondary"
               style={{ background: 'linear-gradient(90deg,#f97316,#fb923c)' }}
             >
@@ -177,7 +151,7 @@ export default function Dashboard() {
 
           <Link href="/delivery-notes/create" className="w-full">
             <Button
-              className=" w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
+              className="w-full justify-start gap-3 transform transition-all duration-200 hover:-translate-y-0.5 hover:scale-[1.01] shadow-md hover:shadow-xl border-0 py-6 rounded-2xl text-white"
               variant="secondary"
               style={{ background: 'linear-gradient(90deg,#7c3aed,#a78bfa)' }}
             >
