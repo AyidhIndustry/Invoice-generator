@@ -11,7 +11,7 @@ import {
   Landmark,
 } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
-import { companyInfo, companyInifoArbi } from '@/data/company-info'
+import { companyInfo } from '@/data/company-info'
 
 interface InfoRowProps {
   icon: React.ComponentType<{ className?: string }>
