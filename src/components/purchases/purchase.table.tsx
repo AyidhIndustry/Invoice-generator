@@ -12,8 +12,9 @@ import { SkeletonTable } from '../ui/skeleton-table'
 import { useDeletePurchase } from '@/hooks/purchases/use-delete-purchase'
 import { formatTimestamp } from '@/lib/format-timestring'
 import { Button } from '../ui/button'
-import { Printer } from 'lucide-react'
+import { Eye, Printer, View } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
+import Link from 'next/link'
 
 export default function PurchasesTable({
   purchases,
@@ -76,9 +77,9 @@ export default function PurchasesTable({
                   <TableCell>{purchase.total ?? '—'}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Printer size={16} />
-                      </Button>
+                      <Link href={`/purchases/${purchase.id}`} className='bg-blue-400 p-2 rounded-md'>
+                        <Eye size={16} color='white'/>
+                      </Link>
 
                       <DeleteItemDialog
                         name="Purchase"
