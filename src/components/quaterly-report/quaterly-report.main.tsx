@@ -3,7 +3,7 @@
 
 import React, { useMemo } from 'react'
 import ContentLayout from '../layout/content.layout'
-import { useStats } from '@/context/stat-context' 
+import { useStats } from '@/context/stat.context' 
 import { Button } from '../ui/button'
 import {
   ResponsiveContainer,

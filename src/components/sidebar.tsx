@@ -6,12 +6,15 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, Power, X } from 'lucide-react'
 import { sidebarLinks } from '@/data/sidebar-links'
+import { useAuth } from '@/context/auth.context'
+import { Button } from './ui/button'
 
 export function Sidebar() {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
+  const {logout} = useAuth()
 
   return (
     <>
@@ -67,9 +70,21 @@ export function Sidebar() {
             </Link>
           ))}
         </nav>
+
+        <div className="absolute bottom-6 left-0 w-full px-6">
+          <Button
+            onClick={() => {
+              logout()
+              setIsOpen(false)
+            }}
+            className='w-full'
+          >
+            <Power/>
+            Logout
+          </Button>
+        </div>
       </aside>
 
-      {/* Mobile overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-20 md:hidden"

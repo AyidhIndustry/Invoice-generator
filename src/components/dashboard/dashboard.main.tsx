@@ -7,7 +7,7 @@ import { Loader2, FileText, ShoppingCart, FilePlus2, Truck } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import Link from 'next/link'
-import { useStats } from '@/context/stat-context'
+import { useStats } from '@/context/stat.context'
 
 const StatBox = ({
   title,
