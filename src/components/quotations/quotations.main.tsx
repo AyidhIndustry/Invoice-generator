@@ -12,7 +12,6 @@ import QuotationTable from './quotation-table'
 const Quotations = () => {
   const [filter, setFilter] = useState<FilterType>({ type: 'all' })
   const { data: quotations, isPending, isError } = useGetQuotations(filter)
-  console.log(quotations)
   return (
     <ContentLayout>
       <div className="space-y-6">

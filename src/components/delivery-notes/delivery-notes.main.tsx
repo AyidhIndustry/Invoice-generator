@@ -5,6 +5,7 @@ import { Plus } from 'lucide-react'
 import DeliveryNotesTable from './delivery-note.table'
 
 const DeliveryNotes = () => {
+  
   return (
     <ContentLayout>
       <div className="space-y-6">
