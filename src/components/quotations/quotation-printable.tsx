@@ -1,14 +1,13 @@
 // components/InvoicePrintable.tsx
-import { companyInfo, companyInfoArbi } from '@/data/company-info'
+import { companyInfo } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
 import { convertSAR } from '@/lib/number-to-words'
-import { Invoice } from '@/schemas/invoice.schema'
+import { Quotation } from '@/schemas/quotation.schema'
 import React, { forwardRef, useEffect } from 'react'
-import InvoiceQRCode from './invoice-qr-code'
 
 type Props = {
-  invoice?: Invoice | null
-  onReady: ()=> void
+  quotation?: Quotation | null
+  onReady: () => void
 }
 
 const nf = new Intl.NumberFormat('en-US', {
@@ -16,16 +15,22 @@ const nf = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 })
 
-export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
-  ({ invoice, onReady }, ref) => {
-     useEffect(() => {
-      // Notify parent that rendering is complete
+export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
+  ({ quotation, onReady }, ref) => {
+    useEffect(() => {
       onReady?.()
     }, [])
 
-    if (!invoice) return null
+    if (!quotation) return null
 
-    const items = invoice.items ?? []
+    const items = quotation.items ?? []
+
+    // Normalize VAT percent once (so SSR and CSR render the same string)
+    const vatPercentDisplay = process.env.NEXT_PUBLIC_TAX ?? ''
+
+    // helpers
+    const safeFormat = (v: unknown) =>
+      typeof v === 'number' && Number.isFinite(v) ? nf.format(v) : ''
 
     return (
       <div ref={ref} className="p-8">
@@ -40,6 +45,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
+            {/* If you use next/image you can improve optimization, but <img> is fine for printing */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 
@@ -55,154 +61,130 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
 
         <hr className="h-0.5 bg-yellow-400 my-1" />
 
-        <div className="bg-gray-200 flex-col flex gap-1 justify-center items-center p-1 font-semibold mb-1 text-center relative">
-          <h2 className="text-sm">
-            Ayidh Mohammed Ayidh Al-Dossary Industrial Workshop
-          </h2>
-          <h2 className="text-sm">ورشة عايض محمد عايض الدوسري الصناعية</h2>
-          <p className="text-sm">Address: Al-Oraifi Area 5001 Jubail, KSA</p>
-          <h3>فاتورة ضريبية / Tax Invoice</h3>
-          <div className="absolute right-2 top-2">
-            <InvoiceQRCode
-              invoice={invoice}
-              size={80}
-              payloadOptions={{ minify: true }}
-            />
-          </div>
+        <div className="bg-gray-200 p-2 text-center mb-1">
+          <h3>
+            <span>Sale Quotation /</span>
+            <span>عرض أسعار</span>
+          </h3>
         </div>
+
         <table className="w-full border-collapse border border-black text-xs mb-1">
           <colgroup>
             <col className="w-[15%]" />
-            <col className="w-[15%]" />
-            <col className="w-[8%]" />
-            <col className="w-[12%]" />
+            <col className="w-[35%]" />
             <col className="w-[15%]" />
             <col className="w-[35%]" />
           </colgroup>
-          <tbody>
-            <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                Inv No.
-                <br />
-                <span className="block text-xs font-normal">رقم الفاتورة</span>
-              </th>
-
-              <td className="border border-black p-1">{invoice.id}</td>
-
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                Date
-                <br />
-                <span className="block text-xs font-normal">التاريخ</span>
-              </th>
-
-              <td className="border border-black p-1">
-                {formatTimestamp(invoice.date)}
-              </td>
-
+          <thead>
+            <tr className="bg-gray-200">
               <th
-                className="border border-black p-1 text-center font-semibold"
+                className="border border-black p-1 text-center align-top font-semibold "
                 colSpan={2}
               >
-                Customer
+                Seller / البائع
+              </th>
+              <th
+                className="border border-black p-1 text-center align-top font-semibold "
+                colSpan={2}
+              >
+                Customer / العميل
               </th>
             </tr>
+          </thead>
+          <tbody>
             <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                VAT No.
-                <br />
-                <span className="block text-xs font-normal">رقم ضريبي</span>
-              </th>
-
-              <td className="border border-black p-1" colSpan={3}>
-                {companyInfo.VATNumber}
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Quote No
+                <br /> رقم الإقتباس
               </td>
-              <th className="border border-black p-1 text-left align-top font-semibold">
+              <td className="border border-black p-1 text-left">
+                {quotation.id}
+              </td>
+              <td className="border border-black p-1 text-left align-top font-semibold">
                 Name
                 <br />
-                <span className="block text-xs font-normal">اسم</span>
-              </th>
-              <td className="border border-black p-1">
-                {invoice.customer?.name ?? ''}
+                اسم
+              </td>
+              <td className="border border-black p-1 text-left">
+                {quotation.customer?.name ?? ''}
               </td>
             </tr>
             <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                Payment
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Date
+                <br /> التاريخ
+              </td>
+              <td className="border border-black p-1 text-left">
+                {formatTimestamp(quotation.createdAt)}
+              </td>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                VAT
                 <br />
-                <span className="block text-xs font-normal">نوع الفاتورة</span>
-              </th>
-              <td className="border border-black p-1" colSpan={3}></td>
-
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                VAT No.
-                <br />
-                <span className="block text-xs font-normal">رقم الضريبة</span>
-              </th>
-
-              <td className="border border-black p-1">
-                {invoice.customer?.VATNumber ?? ''}
+                رقم ضريبى
+              </td>
+              <td className="border border-black p-1 text-left">
+                {quotation.customer?.VATNumber ?? ''}
               </td>
             </tr>
             <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
+              <td className="border border-black p-1 text-left align-top font-semibold">
                 Address
-                <br />
-                <span className="block text-xs font-normal">العنوان</span>
-              </th>
-
-              <td className="border border-black p-1" colSpan={3}>
+                <br /> عنوان
+              </td>
+              <td className="border border-black p-1 text-left">
                 {companyInfo.address}
               </td>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                Email
-                <br />
-                <span className="block text-xs font-normal">بريد</span>
-              </th>
-              <td className="border border-black p-1">
-                {invoice.customer?.email ?? ''}
-              </td>
-            </tr>
-            <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                Remarks
-                <br />
-                <span className="block text-xs font-normal">ملاحظات</span>
-              </th>
-              <td className="border border-black p-1" colSpan={3}>
-                {invoice.remarks ?? ''}
-              </td>
-              <th className="border border-black p-1 text-left align-top font-semibold">
+              <td className="border border-black p-1 text-left align-top font-semibold">
                 Address
-                <br />
-                <span className="block text-xs font-normal">العنوان</span>
-              </th>
-              <td className="border border-black p-1">
-                {invoice.customer?.address ?? ''}
+                <br /> عنوان
+              </td>
+              <td className="border border-black p-1 text-left">
+                {quotation.customer?.address ?? ''}
               </td>
             </tr>
             <tr>
-              <th className="border border-black p-1 text-left align-top font-semibold">
-                CR No.
-                <br />
-                <span className="block text-xs font-normal">
-                  رقم السجل التجاري
-                </span>
-              </th>
-              <td className="border border-black p-1" colSpan={3}>
-                {companyInfo.CRNumber}
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Email
+                <br /> بريد
               </td>
-              <th className="border border-black p-1 text-left align-top font-semibold">
+              <td className="border border-black p-1 text-left">
+                {companyInfo.email}
+              </td>
+              <td className="border border-black p-1 text-left align-top font-semibold">
                 Tel
+                <br /> هاتف
+              </td>
+              <td className="border border-black p-1 text-left">
+                {quotation.customer?.phoneNumber ?? ''}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                VAT
                 <br />
-                <span className="block text-xs font-normal">هاتف</span>
-              </th>
-              <td className="border border-black p-1">
-                {invoice.customer?.phoneNumber ?? ''}
+                رقم ضريبى
+              </td>
+              <td className="border border-black p-1 text-left">
+                {companyInfo.VATNumber}
+              </td>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                CR
+              </td>
+              <td className="border border-black p-1 text-left"></td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Subject
+                <br />
+                موضوع
+              </td>
+              <td className="border border-black p-1 text-left" colSpan={3}>
+                {quotation.subject}
               </td>
             </tr>
           </tbody>
         </table>
-        {/* Items table */}
+
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
           <colgroup>
             <col className="w-[10%]" /> {/* SN */}
@@ -214,7 +196,6 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
             <col className="w-[9%]" /> {/* Total */}
             <col className="w-[14%]" /> {/* Grand Total */}
           </colgroup>
-
           <thead>
             <tr>
               <th className="border border-black p-1 text-center font-bold">
@@ -269,6 +250,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </th>
             </tr>
           </thead>
+
           <tbody>
             {items.length === 0 ? (
               <tr>
@@ -279,7 +261,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </tr>
             ) : (
               items.map((it, idx) => {
-                const qty = it.quantity ?? it.quantity ?? 0
+                const qty = Number(it.quantity ?? 0) || 0
                 const price =
                   typeof it.unitPrice === 'number'
                     ? it.unitPrice
@@ -288,12 +270,11 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
                   typeof it.taxAmount === 'number'
                     ? it.taxAmount
                     : Number(it.taxAmount ?? 0)
-                const vatPercent = process.env.NEXT_PUBLIC_TAX
                 const total =
                   typeof it.unitTotal === 'number'
                     ? it.unitTotal
                     : Number(it.unitTotal ?? 0)
-                const grandTotal = Number(total * qty)
+                const grandTotal = total * qty
 
                 return (
                   <tr key={idx} className="align-top">
@@ -312,28 +293,29 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
                     </td>
 
                     <td className="border border-black p-1 text-center align-top">
-                      {Number.isFinite(price) ? nf.format(price) : ''}
+                      {safeFormat(price)}
                     </td>
 
                     <td className="border border-black p-1 text-center align-top">
-                      {Number.isFinite(vatAmount) ? nf.format(vatAmount) : ''}
+                      {safeFormat(vatAmount)}
                     </td>
 
                     <td className="border border-black p-1 text-center align-top">
-                      {vatPercent !== '' ? `${vatPercent}` : ''}
+                      {vatPercentDisplay !== '' ? `${vatPercentDisplay}` : ''}
                     </td>
 
                     <td className="border border-black p-1 text-center align-top">
-                      {Number.isFinite(total) ? nf.format(total) : ''}
+                      {safeFormat(total)}
                     </td>
 
                     <td className="border border-black p-1 text-center align-top">
-                      {grandTotal}
+                      {safeFormat(grandTotal)}
                     </td>
                   </tr>
                 )
               })
             )}
+
             {/* Totals rows */}
             <tr>
               <td
@@ -348,7 +330,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </td>
 
               <td className="border border-black p-1 text-center">
-                {nf.format(invoice.subTotal ?? 0)}
+                {safeFormat(quotation.subTotal ?? 0)}
               </td>
             </tr>
             <tr>
@@ -362,7 +344,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </td>
 
               <td className="border border-black p-1 text-center">
-                {nf.format(invoice.taxTotal ?? 0)}
+                {safeFormat(quotation.taxTotal ?? 0)}
               </td>
             </tr>
             <tr>
@@ -378,7 +360,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </td>
 
               <td className="border border-black p-1 text-center">
-                {nf.format(invoice.total ?? 0)}
+                {safeFormat(quotation.total ?? 0)}
               </td>
             </tr>
 
@@ -392,83 +374,36 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
               </td>
 
               <td colSpan={7} className="border border-black p-1">
-                {convertSAR(invoice.total ?? 0)}
+                {convertSAR(quotation.total ?? 0)}
               </td>
             </tr>
           </tbody>
         </table>
 
-        {/* Bank details */}
-        <table className="w-full table-fixed border-collapse border border-black text-xs">
+        <div className="bg-gray-200 p-2 text-center mb-1">
+          <h3>شكرا لزيارتكم</h3>
+        </div>
+
+        {/* DETAILS table (was previously a stray <tr> outside table) */}
+        <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
           <colgroup>
-            <col className="w-[20%]" />
-            <col className="w-[40%]" />
-            <col className="w-[40%]" />
+            <col className="w-[15%]" />
+            <col className="w-[85%]" />
           </colgroup>
-
-          <thead>
-            <tr>
-              <th
-                colSpan={3}
-                className="bg-gray-200 border border-black p-1 text-center font-bold"
-              >
-                BANK DETAILS / تفاصيل البنك
-              </th>
-            </tr>
-          </thead>
-
           <tbody>
             <tr>
-              <th className="border border-black p-1 text-left font-medium">
-                Bank
-              </th>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Details
+              </td>
               <td className="border border-black p-1 text-left">
-                {companyInfo.bankDetails?.bankName ?? ''}
-              </td>
-              <td className="border border-black p-1 text-right" dir="rtl">
-                {companyInfoArbi.bankDetails?.bankName ?? ''}
-              </td>
-            </tr>
-
-            <tr>
-              <th className="border border-black p-1 text-left font-medium">
-                IBAN
-              </th>
-              <td className="border border-black p-1 text-left">
-                {companyInfo.bankDetails?.IBAN ?? ''}
-              </td>
-              <td className="border border-black p-1 text-right" dir="rtl">
-                {companyInfoArbi.bankDetails?.IBAN ?? ''}
-              </td>
-            </tr>
-
-            <tr>
-              <th className="border border-black p-1 text-left font-medium">
-                Account Number
-              </th>
-              <td className="border border-black p-1 text-left">
-                {companyInfo.bankDetails?.accountNumber ?? ''}
-              </td>
-              <td className="border border-black p-1 text-right" dir="rtl">
-                {companyInfoArbi.bankDetails?.accountNumber ?? ''}
+                {quotation.details ?? ''}
               </td>
             </tr>
           </tbody>
         </table>
-
-        <div className="h-26 w-full flex flex-col items-center justify-end">
-          <div className="flex justify-between items-center gap-2 w-7/8 mx-auto">
-            <section>
-              <span>Prepared By /</span> <span> أُعدت بواسطة</span>
-            </section>
-            <section>
-              <span>Received By /</span> <span>ستلمت من قبل</span>
-            </section>
-          </div>
-        </div>
       </div>
     )
   },
 )
 
-InvoicePrintable.displayName = 'InvoicePrintable'
+QuotationPrintable.displayName = 'QuotationPrintable'

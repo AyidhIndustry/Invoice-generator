@@ -2,17 +2,17 @@
 import { useRef, useState } from 'react'
 import { useReactToPrint } from 'react-to-print'
 import { Button } from '@/components/ui/button'
-import { InvoicePrintable } from './invoice-printable'
-import { Invoice } from '@/schemas/invoice.schema'
 import { Printer, Loader2 } from 'lucide-react'
+import { DeliveryNote } from '@/schemas/delivery-note.schema'
+import { DeliveryNotePrintable } from './deivery-note-printable'
 
-export function PrintInvoiceButton({ invoice }: { invoice: Invoice }) {
+export function PrintDeliveryNoteButton({ deliveryNote }: { deliveryNote: DeliveryNote }) {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const [isReady, setIsReady] = useState(false)
 
   const reactToPrintFn = useReactToPrint({
     contentRef,
-    documentTitle: `${invoice.id}`,
+    documentTitle: `${deliveryNote.id}`,
   })
 
   return (
@@ -25,9 +25,9 @@ export function PrintInvoiceButton({ invoice }: { invoice: Invoice }) {
           width: '210mm',
         }}
       >
-        <InvoicePrintable
+        <DeliveryNotePrintable
           ref={contentRef}
-          invoice={invoice}
+          deliveryNote={deliveryNote}
           onReady={() => setIsReady(true)}
         />
       </div>
@@ -36,7 +36,7 @@ export function PrintInvoiceButton({ invoice }: { invoice: Invoice }) {
         onClick={reactToPrintFn}
         size="sm"
         variant="outline"
-        aria-label={`Print invoice ${invoice.id}`}
+        aria-label={`Print DeliveryNote ${deliveryNote.id}`}
         disabled={!isReady}
       >
         {!isReady ? (

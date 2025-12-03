@@ -10,10 +10,9 @@ import {
 } from '../ui/table'
 import { SkeletonTable } from '../ui/skeleton-table'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { Button } from '../ui/button'
-import { Printer, Trash2 } from 'lucide-react'
 import { useDeleteQuotation } from '@/hooks/quotations/use-delete-quotation'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
+import { PrintQuotationButton } from './print-quotation-button'
 
 const QuotationTable = ({
   quotations,
@@ -86,13 +85,7 @@ const QuotationTable = ({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        //   onClick={handlePrint}
-                      >
-                        <Printer size={16} />
-                      </Button>
+                      <PrintQuotationButton quotation={quotation}/>
 
                       {/* DELETE */}
                       <DeleteItemDialog

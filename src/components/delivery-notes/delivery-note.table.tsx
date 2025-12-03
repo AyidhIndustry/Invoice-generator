@@ -15,6 +15,7 @@ import { Button } from '../ui/button'
 import { Printer } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import { useDeleteDeliveryNote } from '@/hooks/delivery-notes/use-delete-deliverynote'
+import { PrintDeliveryNoteButton } from './print-delivery-note-button'
 
 export default function DeliveryNotesTable({
   deliverynotes,
@@ -91,10 +92,7 @@ export default function DeliveryNotesTable({
                   <TableCell>{deliveryNote.paymentType}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Printer size={16} />
-                      </Button>
-
+                      <PrintDeliveryNoteButton deliveryNote={deliveryNote} />
                       <DeleteItemDialog
                         name="Delivery Note"
                         id={deliveryNote.id as string}
