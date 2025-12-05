@@ -19,7 +19,6 @@ const nf = new Intl.NumberFormat('en-US', {
 export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
   ({ invoice, onReady }, ref) => {
      useEffect(() => {
-      // Notify parent that rendering is complete
       onReady?.()
     }, [])
 
@@ -28,7 +27,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
     const items = invoice.items ?? []
 
     return (
-      <div ref={ref} id='print-area' className="p-8">
+      <div className="p-8">
         <section className="flex justify-between gap-4">
           <div className="font-anton flex flex-col">
             <h1 className="text-2xl font-semibold text-primary">
