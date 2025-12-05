@@ -16,9 +16,15 @@ export function PrintInvoiceButton({ invoice }: { invoice: Invoice }) {
   })
 
   return (
-   <>
-      {/* Render invoice in DOM BUT it's hidden on screen via CSS (#invoice-print-container) */}
-      <div id="invoice-print-container" aria-hidden={!isReady}>
+    <>
+      <div
+        style={{
+          position: 'absolute',
+          left: -9999,
+          top: -9999,
+          width: '210mm',
+        }}
+      >
         <InvoicePrintable
           ref={contentRef}
           invoice={invoice}
