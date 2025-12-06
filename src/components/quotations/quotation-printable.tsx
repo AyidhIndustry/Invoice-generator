@@ -33,7 +33,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
       typeof v === 'number' && Number.isFinite(v) ? nf.format(v) : ''
 
     return (
-      <div ref={ref}>
+      <div ref={ref} className='p-8'>
         <section className="flex justify-between gap-4">
           <div className="font-anton flex flex-col items-start">
             <h1 className="text-2xl font-semibold text-primary">

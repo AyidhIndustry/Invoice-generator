@@ -23,7 +23,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
           position: 'absolute',
           left: -9999,
           top: -9999,
-          width: '210mm',
+          // width: '210mm',
         }}
       >
         <QuotationPrintable
@@ -37,7 +37,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
         onClick={reactToPrintFn}
         size="sm"
         variant="outline"
-        aria-label={`Print quotation ${quotation.id}`}
+        aria-label={`${quotation.id}`}
         disabled={!isReady}
       >
         {!isReady ? (
