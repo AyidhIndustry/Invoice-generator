@@ -128,7 +128,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
         onClick={handlePrint}
         size="sm"
         variant="outline"
-        aria-label={`Print quotation ${quotation.id}`}
+        aria-label={`${quotation.id}`}
         disabled={printing}
       >
         {printing ? (

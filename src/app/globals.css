@@ -149,8 +149,16 @@ input[type='number'] {
   display: none;
 }
 
-/* Print styles for desktop */
+/* Print styles */
 @media print {
+  /* Remove all default margins */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
   .quotation-printable-wrapper {
     display: block !important;
     position: fixed !important;
@@ -158,10 +166,19 @@ input[type='number'] {
     left: 0 !important;
     right: 0 !important;
     bottom: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    width: 100vw !important;
+    height: 100vh !important;
     background: white !important;
     z-index: 99999 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Override mobile browser default print margins */
+  .quotation-printable-wrapper > div {
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   
   * {
@@ -171,6 +188,6 @@ input[type='number'] {
   
   @page {
     size: A4 portrait;
-    margin: 0;
+    margin: 0 !important;
   }
 }
