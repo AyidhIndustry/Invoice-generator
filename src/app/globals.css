@@ -143,3 +143,34 @@ input[type='number'] {
 .font-anton {
   font-family: 'Anton', sans-serif;
 }
+
+/* Hide printable quotations on screen */
+.quotation-printable-wrapper {
+  display: none;
+}
+
+/* Print styles for desktop */
+@media print {
+  .quotation-printable-wrapper {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: white !important;
+    z-index: 99999 !important;
+  }
+  
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+}

@@ -33,7 +33,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
       typeof v === 'number' && Number.isFinite(v) ? nf.format(v) : ''
 
     return (
-      <div ref={ref} className="p-8">
+      <div ref={ref} className="p-8 ">
         <section className="flex justify-between gap-4">
           <div className="font-anton flex flex-col">
             <h1 className="text-2xl font-semibold text-primary">
@@ -62,7 +62,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
         <hr className="h-0.5 bg-yellow-400 my-1" />
 
         <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3 className='font-semibold'>
+          <h3 className="font-semibold">
             <span>Sale Quotation /</span>
             <span>عرض أسعار</span>
           </h3>
@@ -273,7 +273,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
                   typeof it.unitTotal === 'number'
                     ? it.unitTotal
                     : Number(it.unitTotal ?? 0)
-                const grandTotal = Number(total +vatAmount)
+                const grandTotal = Number(total + vatAmount)
 
                 return (
                   <tr key={idx} className="align-top">
@@ -380,7 +380,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
         </table>
 
         <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3 className='font-semibold'>شكرا لزيارتكم</h3>
+          <h3 className="font-semibold">شكرا لزيارتكم</h3>
         </div>
 
         {/* DETAILS table (was previously a stray <tr> outside table) */}

@@ -1,7 +1,6 @@
 // PrintQuotationButton.tsx
 'use client'
-import { useRef, useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Printer, Loader2 } from 'lucide-react'
 import { Quotation } from '@/schemas/quotation.schema'
@@ -9,69 +8,65 @@ import { QuotationPrintable } from './quotation-printable'
 
 export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
   const [printing, setPrinting] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const printContainerRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    setMounted(true)
-    
-    // Create container immediately
-    const container = document.createElement('div')
-    container.style.cssText = 'display:none;'
-    document.body.appendChild(container)
-    printContainerRef.current = container
-
-    return () => {
-      if (container && document.body.contains(container)) {
-        document.body.removeChild(container)
-      }
-    }
-  }, [])
+  const printRef = useRef<HTMLDivElement>(null)
 
   const handlePrint = async () => {
     setPrinting(true)
+    
+    // Check if mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    
+    if (isMobile) {
+      // Use iframe method for mobile
+      await printWithIframe()
+    } else {
+      // Use simple CSS method for desktop
+      printWithCSS()
+    }
+  }
 
+  const printWithCSS = () => {
+    document.body.classList.add('print-mode')
+    
+    setTimeout(() => {
+      window.print()
+      
+      setTimeout(() => {
+        document.body.classList.remove('print-mode')
+        setPrinting(false)
+      }, 500)
+    }, 100)
+  }
+
+  const printWithIframe = async () => {
     try {
-      if (!printContainerRef.current) {
-        console.error('Print container not found')
-        setPrinting(false)
-        return
-      }
-
-      // Wait for React to render into the container
-      await new Promise(resolve => setTimeout(resolve, 300))
-
-      // Get the rendered HTML
-      const printContent = printContainerRef.current.innerHTML
-
+      const printContent = printRef.current?.innerHTML
       if (!printContent) {
-        console.error('No print content found')
         setPrinting(false)
         return
       }
 
-      // Get all stylesheet links and inline styles
-      const styleLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
-        .map(link => `<link rel="stylesheet" href="${(link as HTMLLinkElement).href}">`)
-        .join('\n')
-
-      const inlineStyles = Array.from(document.querySelectorAll('style'))
-        .map(style => `<style>${style.innerHTML}</style>`)
-        .join('\n')
-
-      // Create iframe for printing
       const iframe = document.createElement('iframe')
-      iframe.style.cssText = 'position:fixed;width:0;height:0;border:none;'
+      iframe.style.cssText = 'position:absolute;width:0;height:0;border:none;'
       document.body.appendChild(iframe)
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document
+      const iframeDoc = iframe.contentDocument
       if (!iframeDoc) {
-        console.error('Could not access iframe document')
         setPrinting(false)
         return
       }
 
-      // Write content to iframe
+      // Get all stylesheets
+      const styles = Array.from(document.styleSheets)
+        .map(sheet => {
+          try {
+            return Array.from(sheet.cssRules).map(rule => rule.cssText).join('\n')
+          } catch {
+            return ''
+          }
+        })
+        .join('\n')
+
       iframeDoc.open()
       iframeDoc.write(`
         <!DOCTYPE html>
@@ -80,13 +75,9 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
             <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Quotation-${quotation.id}</title>
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-            ${styleLinks}
-            ${inlineStyles}
             <style>
-              @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+              ${styles}
               
               .font-anton {
                 font-family: 'Anton', sans-serif;
@@ -98,17 +89,9 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
               }
               
               @media print {
-                html, body {
-                  margin: 0;
-                  padding: 0;
-                  width: 100%;
-                  height: 100%;
-                }
-                
                 * {
                   -webkit-print-color-adjust: exact !important;
                   print-color-adjust: exact !important;
-                  color-adjust: exact !important;
                 }
               }
             </style>
@@ -120,18 +103,13 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
       `)
       iframeDoc.close()
 
-      // Wait for stylesheets to load
       await new Promise(resolve => setTimeout(resolve, 1000))
 
-      // Trigger print
       iframe.contentWindow?.focus()
       iframe.contentWindow?.print()
 
-      // Clean up
       setTimeout(() => {
-        if (iframe && document.body.contains(iframe)) {
-          document.body.removeChild(iframe)
-        }
+        document.body.removeChild(iframe)
         setPrinting(false)
       }, 1000)
     } catch (error) {
@@ -140,21 +118,11 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
     }
   }
 
-  if (!mounted) {
-    return (
-      <Button size="sm" variant="outline" disabled>
-        <Loader2 className="h-4 w-4 animate-spin" />
-      </Button>
-    )
-  }
-
   return (
     <>
-      {mounted && printContainerRef.current &&
-        createPortal(
-          <QuotationPrintable quotation={quotation} onReady={() => {}} />,
-          printContainerRef.current
-        )}
+      <div ref={printRef} className="quotation-printable-wrapper">
+        <QuotationPrintable quotation={quotation} onReady={() => {}} />
+      </div>
 
       <Button
         onClick={handlePrint}
