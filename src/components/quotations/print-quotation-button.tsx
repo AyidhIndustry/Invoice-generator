@@ -76,6 +76,25 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${quotation.id}</title>
             <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+            <style>
+              ${styles}
+              
+              .font-anton {
+                font-family: 'Anton', sans-serif;
+              }
+              
+              @page {
+                size: A4 portrait;
+                margin: 0;
+              }
+              
+              @media print {
+                * {
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                }
+              }
+            </style>
           </head>
           <body>
             ${printContent}
