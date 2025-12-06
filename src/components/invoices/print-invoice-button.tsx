@@ -13,6 +13,7 @@ export function PrintInvoiceButton({ invoice }: { invoice: Invoice }) {
   const reactToPrintFn = useReactToPrint({
     contentRef,
     documentTitle: `${invoice.id}`,
+    preserveAfterPrint: true
   })
 
   return (

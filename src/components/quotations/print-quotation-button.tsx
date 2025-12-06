@@ -23,7 +23,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
           position: 'absolute',
           left: -9999,
           top: -9999,
-          // width: '210mm',
+          width: '210mm',
         }}
       >
         <QuotationPrintable
@@ -42,8 +42,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
       >
         {!isReady ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Preparing…
+            <Loader2 className="h-4 w-4 animate-spin" />
           </>
         ) : (
           <Printer />

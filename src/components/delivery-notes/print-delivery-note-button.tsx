@@ -13,6 +13,7 @@ export function PrintDeliveryNoteButton({ deliveryNote }: { deliveryNote: Delive
   const reactToPrintFn = useReactToPrint({
     contentRef,
     documentTitle: `${deliveryNote.id}`,
+    preserveAfterPrint: true
   })
 
   return (
