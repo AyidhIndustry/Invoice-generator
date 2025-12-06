@@ -16,36 +16,41 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
     contentRef: contentRef,
     documentTitle: `${quotation.id}`,
     onBeforePrint: async () => {
-      setIsReady(true)
-      await setPrinting(true)
+      setPrinting(true)
     },
-    onAfterPrint: () => setPrinting(false),
+    onAfterPrint: () => {
+      setPrinting(false)
+    },
+    pageStyle: `
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        html, body {
+          height: 100%;
+          overflow: visible;
+        }
+      }
+    `,
   })
 
   return (
     <>
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          width: '210mm',
-          height: '297mm', // A4 height
-          overflow: 'hidden',
-          opacity: 0,
-          pointerEvents: 'none',
-          zIndex: -1,
-          // Keep it in the viewport but invisible
-          visibility: 'hidden',
-        }}
-      >
-        <QuotationPrintable
-          ref={contentRef}
-          quotation={quotation}
-          onReady={() => setIsReady(true)}
-        />
+      {/* Hidden container for print content */}
+      <div style={{ display: 'none' }}>
+        <div ref={contentRef}>
+          <QuotationPrintable
+            quotation={quotation}
+            onReady={() => setIsReady(true)}
+          />
+        </div>
       </div>
+
       <Button
         onClick={reactToPrintFn}
         size="sm"
@@ -59,7 +64,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
             {printing ? 'Printing…' : 'Preparing…'}
           </>
         ) : (
-          <Printer />
+          <Printer className="h-4 w-4" />
         )}
       </Button>
     </>
