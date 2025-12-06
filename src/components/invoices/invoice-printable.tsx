@@ -292,7 +292,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
                   typeof it.unitTotal === 'number'
                     ? it.unitTotal
                     : Number(it.unitTotal ?? 0)
-                const grandTotal = Number(total * qty)
+                const grandTotal = Number(total +vatAmount)
 
                 return (
                   <tr key={idx} className="align-top">
