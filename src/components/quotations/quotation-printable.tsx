@@ -273,7 +273,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
                   typeof it.unitTotal === 'number'
                     ? it.unitTotal
                     : Number(it.unitTotal ?? 0)
-                const grandTotal = total * qty
+                const grandTotal = total + vatAmount
 
                 return (
                   <tr key={idx} className="align-top">
