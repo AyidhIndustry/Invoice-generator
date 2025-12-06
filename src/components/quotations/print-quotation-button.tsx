@@ -77,14 +77,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
             <title>${quotation.id}</title>
             <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
              <style>
-              ${styles}
-              
-              * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-              }
-              
+              ${styles} 
               html, body {
                 width: 100%;
                 height: 100%;
