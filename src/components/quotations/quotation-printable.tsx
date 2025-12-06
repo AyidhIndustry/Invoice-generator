@@ -62,7 +62,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
         <hr className="h-0.5 bg-yellow-400 my-1" />
 
         <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3>
+          <h3 className='font-semibold'>
             <span>Sale Quotation /</span>
             <span>عرض أسعار</span>
           </h3>
@@ -380,7 +380,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
         </table>
 
         <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3>شكرا لزيارتكم</h3>
+          <h3 className='font-semibold'>شكرا لزيارتكم</h3>
         </div>
 
         {/* DETAILS table (was previously a stray <tr> outside table) */}
