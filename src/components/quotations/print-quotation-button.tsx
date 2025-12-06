@@ -27,10 +27,17 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
       <div
         aria-hidden
         style={{
-          position: 'absolute',
-          left: -9999,
-          top: -9999,
-          width: '210mm', // keeps layout stable
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          width: '210mm',
+          height: '297mm', // A4 height
+          overflow: 'hidden',
+          opacity: 0,
+          pointerEvents: 'none',
+          zIndex: -1,
+          // Keep it in the viewport but invisible
+          visibility: 'hidden',
         }}
       >
         <QuotationPrintable
@@ -39,7 +46,6 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
           onReady={() => setIsReady(true)}
         />
       </div>
-
       <Button
         onClick={reactToPrintFn}
         size="sm"
