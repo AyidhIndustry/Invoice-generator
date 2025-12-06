@@ -8,16 +8,22 @@ import { Quotation } from '@/schemas/quotation.schema'
 import { QuotationPrintable } from './quotation-printable'
 
 export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
-  const [isReady, setIsReady] = useState(false)
   const [printing, setPrinting] = useState(false)
   const [mounted, setMounted] = useState(false)
   const printContainerRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setMounted(true)
+    
+    // Create container immediately
+    const container = document.createElement('div')
+    container.style.cssText = 'display:none;'
+    document.body.appendChild(container)
+    printContainerRef.current = container
+
     return () => {
-      if (printContainerRef.current && document.body.contains(printContainerRef.current)) {
-        document.body.removeChild(printContainerRef.current)
+      if (container && document.body.contains(container)) {
+        document.body.removeChild(container)
       }
     }
   }, [])
@@ -26,19 +32,17 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
     setPrinting(true)
 
     try {
-      // Create temporary container if it doesn't exist
       if (!printContainerRef.current) {
-        const container = document.createElement('div')
-        container.style.cssText = 'display:none;'
-        document.body.appendChild(container)
-        printContainerRef.current = container
+        console.error('Print container not found')
+        setPrinting(false)
+        return
       }
 
       // Wait for React to render into the container
       await new Promise(resolve => setTimeout(resolve, 300))
 
       // Get the rendered HTML
-      const printContent = printContainerRef.current?.innerHTML || ''
+      const printContent = printContainerRef.current.innerHTML
 
       if (!printContent) {
         console.error('No print content found')
@@ -117,14 +121,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
       iframeDoc.close()
 
       // Wait for stylesheets to load
-      await new Promise(resolve => {
-        if (iframe.contentWindow) {
-          iframe.contentWindow.addEventListener('load', resolve)
-          setTimeout(resolve, 1500) // Fallback timeout
-        } else {
-          setTimeout(resolve, 1500)
-        }
-      })
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
       // Trigger print
       iframe.contentWindow?.focus()
@@ -143,15 +140,6 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
     }
   }
 
-  useEffect(() => {
-    if (mounted && !printContainerRef.current) {
-      const container = document.createElement('div')
-      container.style.cssText = 'display:none;'
-      document.body.appendChild(container)
-      printContainerRef.current = container
-    }
-  }, [mounted])
-
   if (!mounted) {
     return (
       <Button size="sm" variant="outline" disabled>
@@ -164,10 +152,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
     <>
       {mounted && printContainerRef.current &&
         createPortal(
-          <QuotationPrintable
-            quotation={quotation}
-            onReady={() => setIsReady(true)}
-          />,
+          <QuotationPrintable quotation={quotation} onReady={() => {}} />,
           printContainerRef.current
         )}
 
@@ -176,12 +161,12 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
         size="sm"
         variant="outline"
         aria-label={`Print quotation ${quotation.id}`}
-        disabled={!isReady || printing}
+        disabled={printing}
       >
-        {!isReady || printing ? (
+        {printing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {printing ? 'Printing…' : 'Preparing…'}
+            Printing…
           </>
         ) : (
           <Printer className="h-4 w-4" />
