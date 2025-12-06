@@ -184,7 +184,6 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
             </tr>
           </tbody>
         </table>
-
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
           <colgroup>
             <col className="w-[10%]" /> {/* SN */}

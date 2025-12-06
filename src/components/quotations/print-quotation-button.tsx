@@ -1,3 +1,4 @@
+// PrintQuotationButton.tsx
 'use client'
 import { useRef, useState } from 'react'
 import { useReactToPrint } from 'react-to-print'
@@ -9,20 +10,27 @@ import { QuotationPrintable } from './quotation-printable'
 export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const [isReady, setIsReady] = useState(false)
+  const [printing, setPrinting] = useState(false)
 
   const reactToPrintFn = useReactToPrint({
-    contentRef,
+    contentRef: contentRef,
     documentTitle: `${quotation.id}`,
+    onBeforePrint: async () => {
+      setIsReady(true)
+      await setPrinting(true)
+    },
+    onAfterPrint: () => setPrinting(false),
   })
 
   return (
     <>
       <div
+        aria-hidden
         style={{
           position: 'absolute',
           left: -9999,
           top: -9999,
-          width: '210mm',
+          width: '210mm', // keeps layout stable
         }}
       >
         <QuotationPrintable
@@ -37,12 +45,12 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
         size="sm"
         variant="outline"
         aria-label={`Print quotation ${quotation.id}`}
-        disabled={!isReady}
+        disabled={!isReady || printing}
       >
-        {!isReady ? (
+        {!isReady || printing ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Preparing…
+            {printing ? 'Printing…' : 'Preparing…'}
           </>
         ) : (
           <Printer />
