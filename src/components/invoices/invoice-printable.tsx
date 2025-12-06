@@ -26,8 +26,11 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
 
     const items = invoice.items ?? []
 
+
+    console.log("called")
+
     return (
-      <div className="p-8">
+      <div className="p-8" ref={ref}>
         <section className="flex justify-between gap-4">
           <div className="font-anton flex flex-col">
             <h1 className="text-2xl font-semibold text-primary">
