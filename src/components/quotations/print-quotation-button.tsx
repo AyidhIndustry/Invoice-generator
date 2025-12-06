@@ -76,8 +76,27 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${quotation.id}</title>
             <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-            <style>
+             <style>
               ${styles}
+              
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              
+              html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+              
+              body > div {
+                padding: 32px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+              }
               
               .font-anton {
                 font-family: 'Anton', sans-serif;
@@ -85,7 +104,7 @@ export function PrintQuotationButton({ quotation }: { quotation: Quotation }) {
               
               @page {
                 size: A4 portrait;
-                margin: 0;
+                margin: 0 !important;
               }
               
               @media print {

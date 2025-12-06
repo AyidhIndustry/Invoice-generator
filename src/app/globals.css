@@ -175,10 +175,11 @@ input[type='number'] {
     box-sizing: border-box !important;
   }
   
-  /* Override mobile browser default print margins */
+  /* Add padding to the content inside wrapper for desktop */
   .quotation-printable-wrapper > div {
     width: 100% !important;
     box-sizing: border-box !important;
+    padding: 32px !important;
   }
   
   * {
@@ -188,6 +189,6 @@ input[type='number'] {
   
   @page {
     size: A4 portrait;
-    margin: 32px !important;
+    margin: 0 !important;
   }
 }
