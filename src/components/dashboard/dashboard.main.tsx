@@ -8,38 +8,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import { useStats } from '@/context/stat.context'
-
-const StatBox = ({
-  title,
-  value,
-  subtitle,
-  gradient,
-  loading,
-}: {
-  title: string
-  value?: string | number
-  subtitle?: string
-  gradient?: string
-  loading?: boolean
-}) => {
-  return (
-    <div className="rounded-2xl shadow-md overflow-hidden border border-transparent hover:shadow-xl transition-shadow duration-200 bg-white/40 backdrop-blur-sm">
-      <CardContent
-        className={cn('p-5 flex items-center gap-4 h-full', gradient)}
-      >
-        <div className="flex flex-col">
-          <div className="text-sm text-slate-600">{title}</div>
-          <div className="mt-1 text-2xl sm:text-2xl font-extrabold tracking-tight text-slate-900">
-            {loading ? <Loader2 className="animate-spin h-6 w-6" /> : value}
-          </div>
-          {subtitle && (
-            <div className="text-xs mt-1 text-slate-500">{subtitle}</div>
-          )}
-        </div>
-      </CardContent>
-    </div>
-  )
-}
+import { QuarterSelector } from './quarter-selector'
+import { StatBox } from './stat-box'
 
 export default function Dashboard() {
   const { data, isPending, isError } = useStats()
@@ -68,8 +38,9 @@ export default function Dashboard() {
     <ContentLayout>
       <div className="space-y-6">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboar</h1>
         </header>
+        <QuarterSelector />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatBox
@@ -94,11 +65,14 @@ export default function Dashboard() {
             gradient="bg-orange-100 text-orange-900"
           />
           <StatBox
-            title="Total Tax Paid"
-            value={isPending ? undefined : money.format(data.totalTaxPaid)}
-            subtitle="Sum of taxTotal in purchases"
-            loading={isPending}
+            title="Tax"
             gradient="bg-purple-100 text-purple-900"
+            loading={isPending}
+            tax={{
+              received: data.totalTaxReceived,
+              paid: data.totalTaxPaid,
+              net: data.netTax,
+            }}
           />
         </div>
 

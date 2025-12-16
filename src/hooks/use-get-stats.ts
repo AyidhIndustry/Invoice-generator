@@ -1,10 +1,17 @@
-import { getStats } from "@/features/stats/get-stats";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query'
+import { getStats } from '@/features/stats/get-stats'
+import { Quarter } from '@/context/stat.context'
 
-export function useGetStats() {
+type Params = {
+  year: number
+  quarter: Quarter
+}
+
+export function useGetStats({ year, quarter }: Params) {
   return useQuery({
-    queryKey: ['stats-current-quarter'],
-    queryFn: () => getStats(),
-    staleTime: 1000 * 60 * 10,
-  });
+    queryKey: ['stats', year, quarter],
+    queryFn: () => getStats(year, quarter),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+    placeholderData: (previousData) => previousData,   // smooth quarter switching
+  })
 }
