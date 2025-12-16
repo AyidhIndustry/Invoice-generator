@@ -163,8 +163,8 @@ export default function QuarterlyReport() {
 
           <div className="p-4 rounded-xl bg-white/40 shadow-sm">
             <div className="text-sm text-slate-600">Total Tax Paid</div>
-            <div className="text-2xl font-extrabold">{formatCurrency(data.totalTaxPaid)}</div>
-            <div className="text-xs text-slate-500 mt-1">Sum of taxTotal in purchases</div>
+            <div className="text-2xl font-extrabold">{formatCurrency(data.totalTaxReceived)}</div>
+            <div className="text-xs text-slate-500 mt-1">Sum of Total tax recieved</div>
           </div>
         </div>
 
