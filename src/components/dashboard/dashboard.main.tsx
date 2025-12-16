@@ -23,17 +23,6 @@ export default function Dashboard() {
     [],
   )
 
-  const money = useMemo(
-    () =>
-      new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'SAR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }),
-    [],
-  )
-
   return (
     <ContentLayout>
       <div className="space-y-6">

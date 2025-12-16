@@ -1,6 +1,7 @@
 import { Loader2 } from 'lucide-react'
 import { CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { useMemo } from 'react'
 
 type TaxBreakdown = {
   received: number
@@ -14,8 +15,6 @@ type Props = {
   subtitle?: string
   gradient?: string
   loading?: boolean
-
-  // 🔹 only used when title === 'Tax'
   tax?: TaxBreakdown
 }
 
@@ -28,6 +27,18 @@ export const StatBox = ({
   tax,
 }: Props) => {
   const isTax = title.toLowerCase() === 'tax'
+
+
+  const money = useMemo(
+    () =>
+      new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: 'SAR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+    [],
+  )
 
   return (
     <div className="rounded-2xl shadow-md overflow-hidden border border-transparent hover:shadow-xl transition-shadow duration-200 bg-white/40 backdrop-blur-sm">
@@ -64,14 +75,14 @@ export const StatBox = ({
                   <div className="flex justify-between">
                     <span className="text-slate-600 font-semibold">Received (invoice)</span>
                     <span className="font-bold text-green-600 text-xl">
-                      SAR {tax.received}
+                      {money.format(tax.received)}
                     </span>
                   </div>
 
                   <div className="flex justify-between">
                     <span className="text-slate-600 font-semibold">Paid (purchases)</span>
                     <span className="font-bold text-red-400 text-xl">
-                      SAR {tax.paid}
+                      {money.format(tax.paid)}
                     </span>
                   </div>
 
