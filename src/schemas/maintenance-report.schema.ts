@@ -16,7 +16,6 @@ export const MaintenanceReportSchema = z.object({
   customer: CustomerSchema,
   symptoms: z.string().optional(),
   causeOfIssue: z.string().optional(),
-  maintenanceStatus: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED']),
   repair: z
     .array(repairItemSchema)
     .min(1, 'At least one repair item is required'),

@@ -12,7 +12,6 @@ export const defaultMaintenanceReport =
     },
     symptoms: '',
     causeOfIssue: '',
-    maintenanceStatus: 'PENDING',
     repair: [
       {
         description: '',

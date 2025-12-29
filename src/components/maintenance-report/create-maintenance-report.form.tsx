@@ -8,12 +8,18 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Trash2, Plus } from 'lucide-react'
+import { CreateMaintenanceReportDTO } from '@/schemas/maintenance-report.schema'
+import z from 'zod'
+import { useCreateMaintenanceReport } from '@/hooks/maintenance-report/use-create-maintenance-report'
 
 const TAX_PERCENT = Number(process.env.NEXT_PUBLIC_TAX || 0)
 
 export default function CreateMaintenanceReportForm() {
   const [formData, setFormData] = useState(defaultMaintenanceReport)
-
+  const {
+    mutate: CreateMaintenanceReport,
+    isPending: isCreateMaintenanceReportPending,
+  } = useCreateMaintenanceReport()
   const items = formData.repair
 
   // -------------------------
@@ -56,7 +62,28 @@ export default function CreateMaintenanceReportForm() {
   }, [grandTotal])
 
   const handleSubmit = () => {
-    console.log('Maintenance Report:', formData)
+    try {
+      const payload = {
+        ...formData,
+        repair: formData.repair.map((r) => ({
+          ...r,
+          labourHours: Number(r.labourHours || 0),
+          price: Number(r.price || 0),
+        })),
+        totalCost: Number(formData.totalCost),
+      }
+      const validated = CreateMaintenanceReportDTO.parse(payload)
+      CreateMaintenanceReport(validated)
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        alert(
+          'Form contains invalid or missing data. Please review all fields.',
+        )
+      } else {
+        console.error('Unexpected error:', err)
+        alert('Something went wrong while saving the report.')
+      }
+    }
   }
 
   return (
@@ -267,8 +294,13 @@ export default function CreateMaintenanceReportForm() {
         </CardContent>
       </Card>
 
-      <Button type="button" onClick={handleSubmit}>
-        Save
+      <Button
+        type="submit"
+        className="ml-auto"
+        disabled={isCreateMaintenanceReportPending}
+        onClick={handleSubmit}
+      >
+        {isCreateMaintenanceReportPending ? 'Creating...' : 'Create Report'}
       </Button>
     </form>
   )
