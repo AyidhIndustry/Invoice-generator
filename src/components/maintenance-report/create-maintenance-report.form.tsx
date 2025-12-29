@@ -61,7 +61,8 @@ export default function CreateMaintenanceReportForm() {
     setFormData((f) => ({ ...f, totalCost: grandTotal }))
   }, [grandTotal])
 
-  const handleSubmit = () => {
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     try {
       const payload = {
         ...formData,
@@ -87,7 +88,7 @@ export default function CreateMaintenanceReportForm() {
   }
 
   return (
-    <form className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       {/* CUSTOMER */}
       <Card>
         <CardHeader>
@@ -298,7 +299,6 @@ export default function CreateMaintenanceReportForm() {
         type="submit"
         className="ml-auto"
         disabled={isCreateMaintenanceReportPending}
-        onClick={handleSubmit}
       >
         {isCreateMaintenanceReportPending ? 'Creating...' : 'Create Report'}
       </Button>
