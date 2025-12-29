@@ -5,23 +5,21 @@ import { convertSAR } from '@/lib/number-to-words'
 import { Invoice } from '@/schemas/invoice.schema'
 import React, { forwardRef, useEffect } from 'react'
 import InvoiceQRCode from './invoice-qr-code'
+import { nf } from '@/lib/number-format'
 
 type Props = {
   invoice?: Invoice | null
   onReady: ()=> void
 }
 
-const nf = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
+
 
 export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
-  ({ invoice, onReady }, ref) => {
+  ({ invoice, onReady }, ref) => {  
      useEffect(() => {
       onReady?.()
     }, [])
-
+    
     if (!invoice) return null
 
     const items = invoice.items ?? []

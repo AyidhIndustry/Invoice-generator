@@ -1,6 +1,7 @@
 // components/InvoicePrintable.tsx
 import { companyInfo } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
+import { nf } from '@/lib/number-format'
 import { convertSAR } from '@/lib/number-to-words'
 import { Quotation } from '@/schemas/quotation.schema'
 import React, { forwardRef, useEffect } from 'react'
@@ -10,10 +11,6 @@ type Props = {
   onReady: () => void
 }
 
-const nf = new Intl.NumberFormat('en-US', {
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-})
 
 export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
   ({ quotation, onReady }, ref) => {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { defaultMaintenanceReport } from '@/default-values/maintenance-report.default'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,81 +11,97 @@ import { Trash2, Plus } from 'lucide-react'
 import { CreateMaintenanceReportDTO } from '@/schemas/maintenance-report.schema'
 import z from 'zod'
 import { useCreateMaintenanceReport } from '@/hooks/maintenance-report/use-create-maintenance-report'
+import { nf } from '@/lib/number-format'
 
 const TAX_PERCENT = Number(process.env.NEXT_PUBLIC_TAX || 0)
 
+const toNumber = (v: string | number) => {
+  if (v === '' || v === null || v === undefined) return 0
+  const n = Number(v)
+  return Number.isNaN(n) ? 0 : n
+}
+
 export default function CreateMaintenanceReportForm() {
   const [formData, setFormData] = useState(defaultMaintenanceReport)
-  const {
-    mutate: CreateMaintenanceReport,
-    isPending: isCreateMaintenanceReportPending,
-  } = useCreateMaintenanceReport()
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const { mutate: createReport, isPending } = useCreateMaintenanceReport()
+
   const items = formData.repair
 
-  // -------------------------
-  // Repair item helpers
-  // -------------------------
-  const updateItem = (
-    idx: number,
-    field: 'description' | 'price' | 'labourHours',
-    value: any,
-  ) => {
-    const copy = [...items]
-    copy[idx] = { ...copy[idx], [field]: value }
-    setFormData({ ...formData, repair: copy })
+  /* -------------------- totals -------------------- */
+
+  // const taxAmount = useMemo(() => (subTotal * TAX_PERCENT) / 100, [subTotal])
+
+  // const grandTotal = useMemo(
+  //   () => Number((subTotal + taxAmount).toFixed(2)),
+  //   [subTotal, taxAmount],
+  // )
+
+  /* -------------------- helpers -------------------- */
+
+  const updateItem = (idx: number, field: 'description', value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      repair: prev.repair.map((r, i) =>
+        i === idx ? { ...r, [field]: value } : r,
+      ),
+    }))
   }
 
   const addItem = () => {
-    setFormData({
-      ...formData,
-      repair: [
-        ...items,
-        { description: '', labourHours: '', price: '' }, // ← must be empty strings
-      ],
-    })
+    setFormData((p) => ({
+      ...p,
+      repair: [...p.repair, { description: '', labourHours: '', price: '' }],
+    }))
   }
 
   const removeItem = (idx: number) => {
-    const copy = items.filter((_, i) => i !== idx)
-    setFormData({
-      ...formData,
-      repair: copy.length
-        ? copy
-        : [{ description: '', labourHours: '', price: '' }], // ← keep placeholders
-    })
+    setFormData((p) => ({
+      ...p,
+      repair:
+        p.repair.length === 1
+          ? [{ description: '', labourHours: '', price: '' }]
+          : p.repair.filter((_, i) => i !== idx),
+    }))
   }
 
-  const grandTotal = items.reduce((sum, i) => sum + Number(i.price || 0), 0)
+  const fieldError = (name: string) =>
+    errors[name] ? (
+      <p className="text-xs text-red-500 mt-1">{errors[name]}</p>
+    ) : null
 
-  useEffect(() => {
-    setFormData((f) => ({ ...f, totalCost: grandTotal }))
-  }, [grandTotal])
+  /* -------------------- submit -------------------- */
 
-  const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrors({})
+
     try {
       const payload = {
         ...formData,
         repair: formData.repair.map((r) => ({
-          ...r,
-          labourHours: Number(r.labourHours || 0),
-          price: Number(r.price || 0),
+          description: r.description.trim(),
         })),
-        totalCost: Number(formData.totalCost),
       }
+
       const validated = CreateMaintenanceReportDTO.parse(payload)
-      CreateMaintenanceReport(validated)
+      createReport(validated)
+      setFormData(defaultMaintenanceReport)
     } catch (err) {
       if (err instanceof z.ZodError) {
-        alert(
-          'Form contains invalid or missing data. Please review all fields.',
-        )
+        const map: Record<string, string> = {}
+        err.issues.forEach((e) => {
+          map[e.path.join('.')] = e.message
+        })
+        setErrors(map)
       } else {
-        console.error('Unexpected error:', err)
-        alert('Something went wrong while saving the report.')
+        alert('Unexpected error occurred')
       }
     }
   }
+
+  /* -------------------- UI -------------------- */
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit}>
@@ -94,19 +110,20 @@ export default function CreateMaintenanceReportForm() {
         <CardHeader>
           <CardTitle>Customer</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <Label>Customer Name</Label>
             <Input
-              placeholder="Customer full name"
+              placeholder="Full name of the customer"
               value={formData.customer.name}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  customer: { ...formData.customer, name: e.target.value },
-                })
+                setFormData((p) => ({
+                  ...p,
+                  customer: { ...p.customer, name: e.target.value },
+                }))
               }
             />
+            {fieldError('customer.name')}
           </div>
 
           <div>
@@ -115,15 +132,13 @@ export default function CreateMaintenanceReportForm() {
               placeholder="Primary contact number"
               value={formData.customer.phoneNumber}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  customer: {
-                    ...formData.customer,
-                    phoneNumber: e.target.value,
-                  },
-                })
+                setFormData((p) => ({
+                  ...p,
+                  customer: { ...p.customer, phoneNumber: e.target.value },
+                }))
               }
             />
+            {fieldError('customer.phoneNumber')}
           </div>
 
           <div>
@@ -132,26 +147,28 @@ export default function CreateMaintenanceReportForm() {
               placeholder="Billing or contact email"
               value={formData.customer.email}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  customer: { ...formData.customer, email: e.target.value },
-                })
+                setFormData((p) => ({
+                  ...p,
+                  customer: { ...p.customer, email: e.target.value },
+                }))
               }
             />
+            {fieldError('customer.email')}
           </div>
 
           <div className="md:col-span-2">
             <Label>Address</Label>
             <Textarea
-              placeholder="Site address where the machine is installed"
+              placeholder="Installation or service site address"
               value={formData.customer.address}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  customer: { ...formData.customer, address: e.target.value },
-                })
+                setFormData((p) => ({
+                  ...p,
+                  customer: { ...p.customer, address: e.target.value },
+                }))
               }
             />
+            {fieldError('customer.address')}
           </div>
         </CardContent>
       </Card>
@@ -165,48 +182,33 @@ export default function CreateMaintenanceReportForm() {
           <div>
             <Label>Reported Symptoms</Label>
             <Textarea
-              placeholder="Customer-reported symptoms (e.g. motor overheating, generator not starting, abnormal noise)"
+              placeholder="Customer-reported symptoms (e.g. overheating, not starting, abnormal noise)"
               value={formData.symptoms}
               onChange={(e) =>
-                setFormData({ ...formData, symptoms: e.target.value })
+                setFormData((p) => ({ ...p, symptoms: e.target.value }))
               }
             />
+            {fieldError('symptoms')}
           </div>
 
           <div>
             <Label>Cause of Issue</Label>
             <Textarea
-              placeholder="Technician-identified cause (e.g. winding short, bearing failure, overload, loose connections)"
+              placeholder="Technician-identified root cause"
               value={formData.causeOfIssue}
               onChange={(e) =>
-                setFormData({ ...formData, causeOfIssue: e.target.value })
+                setFormData((p) => ({ ...p, causeOfIssue: e.target.value }))
               }
             />
+            {fieldError('causeOfIssue')}
           </div>
         </CardContent>
       </Card>
 
-      {/* REMARKS */}
+      {/* ITEMS */}
       <Card>
         <CardHeader>
-          <CardTitle>Engineer Remarks</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Label>Additional Notes</Label>
-          <Textarea
-            placeholder="Any special observations, safety warnings, or follow-up actions"
-            value={formData.remark}
-            onChange={(e) =>
-              setFormData({ ...formData, remark: e.target.value })
-            }
-          />
-        </CardContent>
-      </Card>
-
-      {/* REPAIR ITEMS */}
-      <Card>
-        <CardHeader className="px-6">
-          <CardTitle>Repair Items (Tax {TAX_PERCENT}%)</CardTitle>
+          <CardTitle>Repair Items</CardTitle>
         </CardHeader>
         <CardContent className="px-6">
           <div className="w-full overflow-x-auto">
@@ -217,14 +219,22 @@ export default function CreateMaintenanceReportForm() {
                   <th className="text-left w-32 py-3 px-2 md:px-4">
                     Labour Hours
                   </th>
-                  <th className="text-left w-32 py-3 px-2 md:px-4">Price</th>
+                  <th className="text-left w-32 py-3 px-2 md:px-4">
+                    Price (SAR)
+                  </th>
+                  <th className="w-10" />
                 </tr>
               </thead>
 
               <tbody>
                 {items.map((it, idx) => {
+                  const priceError = errors[`repair.${idx}.price`]
+                  const labourError = errors[`repair.${idx}.labourHours`]
+                  const descError = errors[`repair.${idx}.description`]
+
                   return (
-                    <tr key={idx} className="border-b">
+                    <tr key={idx} className="border-b align-top">
+                      {/* Description */}
                       <td className="py-3 px-2 md:px-4">
                         <Input
                           placeholder="Spare part or service description"
@@ -233,33 +243,18 @@ export default function CreateMaintenanceReportForm() {
                             updateItem(idx, 'description', e.target.value)
                           }
                         />
+                        {descError && (
+                          <p className="text-xs text-red-500 mt-1">
+                            {descError}
+                          </p>
+                        )}
                       </td>
-                      <td className="py-3 px-2 md:px-4">
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={it.labourHours}
-                          onChange={
-                            (e) =>
-                              updateItem(idx, 'labourHours', e.target.value) // ← store string
-                          }
-                        />
-                      </td>
-                      <td>
-                        <Input
-                          type="number"
-                          placeholder="0.00"
-                          value={it.price}
-                          onChange={
-                            (e) => updateItem(idx, 'price', e.target.value) // ← store string
-                          }
-                        />
-                      </td>
-
+                      {/* Delete */}
                       <td className="py-3 px-2 md:px-4 text-center">
                         <Button
                           size="sm"
                           variant="ghost"
+                          type="button"
                           onClick={() => removeItem(idx)}
                         >
                           <Trash2 size={16} />
@@ -287,20 +282,25 @@ export default function CreateMaintenanceReportForm() {
         </CardContent>
       </Card>
 
-      {/* TOTAL */}
+      {/* REMARK */}
       <Card>
-        <CardContent className="flex justify-between text-lg font-semibold">
-          <span>Total</span>
-          <span>{formData.totalCost.toFixed(2)}</span>
+        <CardHeader>
+          <CardTitle>Engineer Remarks</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            placeholder="Safety notes, follow-ups, warranty remarks, or special observations"
+            value={formData.remark}
+            onChange={(e) =>
+              setFormData((p) => ({ ...p, remark: e.target.value }))
+            }
+          />
+          {fieldError('remark')}
         </CardContent>
       </Card>
 
-      <Button
-        type="submit"
-        className="ml-auto"
-        disabled={isCreateMaintenanceReportPending}
-      >
-        {isCreateMaintenanceReportPending ? 'Creating...' : 'Create Report'}
+      <Button type="submit" disabled={isPending}>
+        {isPending ? 'Creating...' : 'Create Report'}
       </Button>
     </form>
   )

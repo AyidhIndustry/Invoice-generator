@@ -14,6 +14,8 @@ import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import Link from 'next/link'
 import { useDeleteMaintenanceReport } from '@/hooks/maintenance-report/use-delete-maintenance-report'
 import { MaintenanceReport } from '@/schemas/maintenance-report.schema'
+import { PrintMaintenanceReportButton } from './print-maintenance-report-button'
+import { nf } from '@/lib/number-format'
 
 export default function MaintenanceReportTable({
   maintenanceReports,
@@ -37,7 +39,6 @@ export default function MaintenanceReportTable({
             <TableHead>ID</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead className="text-right">Total</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -76,18 +77,22 @@ export default function MaintenanceReportTable({
                     {formatTimestamp(maintenanceReport.date)}
                   </TableCell>
                   <TableCell>
-                    {maintenanceReport.customer.name ?? '—'}
+                    <div className="flex flex-col">
+                      <span className="font-medium">
+                        {maintenanceReport.customer?.name ?? '—'}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {maintenanceReport.customer?.email ?? '—'}
+                      </span>
+                    </div>
                   </TableCell>
 
-                  <TableCell>{maintenanceReport.totalCost ?? '—'}</TableCell>
+                 
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <Link
-                        href={`/purchases/${maintenanceReport.id}`}
-                        className="bg-blue-400 p-2 rounded-md"
-                      >
-                        <Eye size={16} color="white" />
-                      </Link>
+                      <PrintMaintenanceReportButton
+                        report={maintenanceReport}
+                      />
 
                       <DeleteItemDialog
                         name="Maintenance Report"

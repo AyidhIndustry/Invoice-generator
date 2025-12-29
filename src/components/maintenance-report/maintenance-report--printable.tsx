@@ -1,28 +1,25 @@
-// components/InvoicePrintable.tsx
 import { companyInfo } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { convertSAR } from '@/lib/number-to-words'
-import { DeliveryNote } from '@/schemas/delivery-note.schema'
-import React, { forwardRef, useEffect } from 'react'
+import { MaintenanceReport } from '@/schemas/maintenance-report.schema'
+import { forwardRef, useEffect } from 'react'
 
 type Props = {
-  deliveryNote?: DeliveryNote | null
+  report?: MaintenanceReport | null
   onReady: () => void
 }
 
-
-export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
-  ({ deliveryNote, onReady }, ref) => {
+export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
+  ({ report, onReady }, ref) => {
     useEffect(() => {
       onReady?.()
     }, [])
 
-    if (!deliveryNote) return null
+    if (!report) return null
 
-    const items = deliveryNote.items ?? []
+    const items = report.repair ?? []
 
     return (
-      <div ref={ref} className="p-8">
+      <div className="p-8" ref={ref}>
         <section className="flex justify-between gap-4">
           <div className="font-anton flex flex-col">
             <h1 className="text-2xl font-semibold text-primary">
@@ -34,7 +31,6 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
-            {/* If you use next/image you can improve optimization, but <img> is fine for printing */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 
@@ -50,10 +46,13 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
 
         <hr className="h-0.5 bg-yellow-400 my-1" />
 
-        <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3 className='text-lg font-semibold'>
-           Delivery Note
-          </h3>
+        <div className="bg-gray-200 flex-col flex gap-1 justify-center items-center p-1 font-semibold mb-1 text-center relative">
+          <h2 className="text-sm">
+            Ayidh Mohammed Ayidh Al-Dossary Industrial Workshop
+          </h2>
+          <h2 className="text-sm">ورشة عايض محمد عايض الدوسري الصناعية</h2>
+          <p className="text-sm">Address: Al-Oraifi Area 5001 Jubail, KSA</p>
+          <h3>Maintenance Report</h3>
         </div>
         <table className="w-full border-collapse border border-black text-xs mb-1">
           <colgroup>
@@ -81,19 +80,17 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
           <tbody>
             <tr>
               <td className="border border-black p-1 text-left align-top font-semibold">
-                Quote No
-                <br /> رقم الإقتباس
+                Maintenance Report No
+                <br /> رقم تقرير الصيانة
               </td>
-              <td className="border border-black p-1 text-left">
-                {deliveryNote.id}
-              </td>
+              <td className="border border-black p-1 text-left">{report.id}</td>
               <td className="border border-black p-1 text-left align-top font-semibold">
                 Name
                 <br />
                 اسم
               </td>
               <td className="border border-black p-1 text-left">
-                {deliveryNote.customer?.name ?? ''}
+                {report.customer?.name ?? ''}
               </td>
             </tr>
             <tr>
@@ -102,7 +99,7 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
                 <br /> التاريخ
               </td>
               <td className="border border-black p-1 text-left">
-                {formatTimestamp(deliveryNote.date)}
+                {formatTimestamp(report.date)}
               </td>
               <td className="border border-black p-1 text-left align-top font-semibold">
                 VAT
@@ -110,7 +107,7 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
                 رقم ضريبى
               </td>
               <td className="border border-black p-1 text-left">
-                {deliveryNote.customer?.VATNumber ?? ''}
+                {report.customer?.VATNumber ?? ''}
               </td>
             </tr>
             <tr>
@@ -126,7 +123,7 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
                 <br /> عنوان
               </td>
               <td className="border border-black p-1 text-left">
-                {deliveryNote.customer?.address ?? ''}
+                {report.customer?.address ?? ''}
               </td>
             </tr>
             <tr>
@@ -142,7 +139,7 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
                 <br /> هاتف
               </td>
               <td className="border border-black p-1 text-left">
-                {deliveryNote.customer?.phoneNumber ?? ''}
+                {report.customer?.phoneNumber ?? ''}
               </td>
             </tr>
             <tr>
@@ -163,87 +160,86 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
         </table>
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
           <colgroup>
-            <col className="w-[15%]" /> {/* SN */}
-            <col className="w-[60%]" /> {/* Item Title */}
-            <col className="w-[25%]" /> {/* Qty */} 
+            <col className="w-[15%]" /> {/* SL No */}
+            <col className="w-[85%]" /> {/* Description */}
           </colgroup>
+
           <thead>
             <tr>
               <th className="border border-black p-1 text-center font-bold">
-                سيرييل نمبر
+                الرقم
               </th>
               <th className="border border-black p-1 text-center font-bold">
-                اسم الصنف
-              </th>
-              <th className="border border-black p-1 text-center font-bold">
-                الكمية
+                وصف الصيانة
               </th>
             </tr>
             <tr>
               <th className="border border-black p-1 text-center font-semibold">
-                SN
+                SL No
               </th>
               <th className="border border-black p-1 text-center font-semibold">
-                Item Title
+                Description
               </th>
-              <th className="border border-black p-1 text-center font-semibold">
-                Qty
-              </th>
-             
             </tr>
           </thead>
+
           <tbody>
-            {items.length === 0 ? (
+            {report.repair.length === 0 ? (
               <tr>
-                <td
-                  className="border border-black p-2 text-center"
-                  colSpan={8}
-                ></td>
+                <td colSpan={2} className="border border-black p-2 text-center">
+                  —
+                </td>
               </tr>
             ) : (
-              items.map((it, idx) => {
-                const qty = Number(it.quantity ?? 0) || 0
-                return (
-                  <tr key={idx} className="align-top">
-                    <td className="border border-black p-1 text-center align-top">
-                      {idx + 1}
-                    </td>
+              report.repair.map((it, idx) => (
+                <tr key={idx} className="align-top">
+                  {/* Serial Number */}
+                  <td className="border border-black p-1 text-center align-top">
+                    {idx + 1}
+                  </td>
 
-                    <td className="border border-black p-1 align-top">
-                      <div className="whitespace-pre-wrap">
-                        {it.title ?? ''}
-                      </div>
-                    </td>
-
-                    <td className="border border-black p-1 text-center align-top">
-                      {qty}
-                    </td>
-                  </tr>
-                )
-              })
+                  {/* Description */}
+                  <td className="border border-black p-1 align-top">
+                    <div className="whitespace-pre-wrap">
+                      {it.description || ''}
+                    </div>
+                  </td>
+                </tr>
+              ))
             )}
-
-           
           </tbody>
         </table>
-
-        <div className="bg-gray-200 p-2 text-center mb-1">
-          <h3>شكرا لزيارتكم</h3>
-        </div>
-
-        {/* DETAILS table (was previously a stray <tr> outside table) */}
-        <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
+        <table className="w-full table-fixed border-collapse border border-black text-xs mb-2">
           <colgroup>
-            <col className="w-[15%]" />
-            <col className="w-[85%]" />
+            <col className="w-[30%]" /> {/* Label */}
+            <col className="w-[70%]" /> {/* Value */}
           </colgroup>
+
           <tbody>
             <tr>
-              <td className="border border-black p-1 text-left align-top font-semibold">
-                Driver Details
+              <td className="border border-black p-1 font-bold">
+                Reported Issue
               </td>
-              <td className="border border-black p-1 text-left">
-                {deliveryNote.driverDetails ?? ''}
+              <td className="border border-black p-1 whitespace-pre-wrap">
+                {report.symptoms || '—'}
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border border-black p-1 font-bold">
+                Cause of Issue
+              </td>
+              <td className="border border-black p-1 whitespace-pre-wrap">
+                {report.causeOfIssue || '—'}
+              </td>
+            </tr>
+
+            <tr>
+              <td className="border border-black p-1 font-bold">
+                Engineer Remarks
+              </td>
+              <td className="border border-black p-1 whitespace-pre-wrap">
+                {report.remark || '—'}
               </td>
             </tr>
           </tbody>
@@ -252,5 +248,3 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
     )
   },
 )
-
-DeliveryNotePrintable.displayName = 'DeliveryNotePrintable'

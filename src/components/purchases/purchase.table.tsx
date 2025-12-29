@@ -15,6 +15,7 @@ import { Button } from '../ui/button'
 import { Eye, Printer, View } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import Link from 'next/link'
+import { nf } from '@/lib/number-format'
 
 export default function PurchasesTable({
   purchases,
@@ -38,9 +39,9 @@ export default function PurchasesTable({
             <TableHead>ID</TableHead>
             <TableHead>Date</TableHead>
             <TableHead>Description</TableHead>
-            <TableHead className="text-right">SubTotal</TableHead>
-            <TableHead className="text-right">Tax</TableHead>
-            <TableHead className="text-right">Total</TableHead>
+            <TableHead>SubTotal</TableHead>
+            <TableHead>Tax</TableHead>
+            <TableHead>Total</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -72,9 +73,9 @@ export default function PurchasesTable({
                   <TableCell className="font-medium">{purchase.id}</TableCell>
                   <TableCell>{formatTimestamp(purchase.date)}</TableCell>
                   <TableCell>{purchase.description ?? '—'}</TableCell>
-                  <TableCell>{purchase.subTotal ?? '—'}</TableCell>
-                  <TableCell>{purchase.taxTotal ?? '—'}</TableCell>
-                  <TableCell>{purchase.total ?? '—'}</TableCell>
+                  <TableCell>SAR {nf.format(purchase.subTotal ?? '—')}</TableCell>
+                  <TableCell>SAR {nf.format(purchase.taxTotal ?? '—')}</TableCell>
+                  <TableCell>SAR {nf.format(purchase.total ?? '—')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
                       <Link href={`/purchases/${purchase.id}`} className='bg-blue-400 p-2 rounded-md'>

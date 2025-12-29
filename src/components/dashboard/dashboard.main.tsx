@@ -27,7 +27,7 @@ export default function Dashboard() {
     <ContentLayout>
       <div className="space-y-6">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboar</h1>
+          <h1 className="text-2xl sm:text-3xl font-extrabold">Dashboard</h1>
         </header>
         <QuarterSelector />
 

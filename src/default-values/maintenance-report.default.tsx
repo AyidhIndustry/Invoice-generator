@@ -15,10 +15,7 @@ export const defaultMaintenanceReport =
     repair: [
       {
         description: '',
-        labourHours: '',
-        price: '',
       },
     ],
-    totalCost: 0,
     remark: '',
   }

@@ -16,6 +16,7 @@ import { Printer } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import { useDeleteInvoice } from '@/hooks/invoices/use-delete-invoice'
 import { PrintInvoiceButton } from './print-invoice-button'
+import { nf } from '@/lib/number-format'
 
 export default function InvoiceTable({
   invoices,
@@ -81,7 +82,7 @@ export default function InvoiceTable({
                     </div>
                   </TableCell>
                   <TableCell>{formatTimestamp(invoice.date)}</TableCell>
-                  <TableCell>SAR {invoice.total ?? '—'}</TableCell>
+                  <TableCell>SAR {nf.format(invoice.total ?? '—')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
                       <PrintInvoiceButton invoice={invoice}/>

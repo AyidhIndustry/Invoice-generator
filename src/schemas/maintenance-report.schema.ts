@@ -3,11 +3,6 @@ import { CustomerSchema } from './customer.schema'
 
 export const repairItemSchema = z.object({
   description: z.string(),
-  labourHours: z.coerce
-    .number()
-    .min(0, 'Labour hours cannot be negative')
-    .optional(),
-  price: z.coerce.number().min(0, 'Price cannot be negative'),
 })
 
 export const MaintenanceReportSchema = z.object({
@@ -19,7 +14,6 @@ export const MaintenanceReportSchema = z.object({
   repair: z
     .array(repairItemSchema)
     .min(1, 'At least one repair item is required'),
-  totalCost: z.number().min(0, 'Total cost cannot be negative'),
   remark: z.string().optional(),
 })
 
