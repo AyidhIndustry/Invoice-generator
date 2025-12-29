@@ -54,11 +54,6 @@ export default function CreateInvoiceForm() {
       taxTotal: 0,
       total: 0,
       remarks: '',
-      // bankDetails: {
-      //   bankName: '',
-      //   IBAN: '',
-      //   accountNumber: '',
-      // },
     },
   })
 
