@@ -216,20 +216,13 @@ export default function CreateMaintenanceReportForm() {
               <thead className="border-b-2 border-border bg-muted">
                 <tr>
                   <th className="text-left py-3 px-2 md:px-4">Description</th>
-                  <th className="text-left w-32 py-3 px-2 md:px-4">
-                    Labour Hours
-                  </th>
-                  <th className="text-left w-32 py-3 px-2 md:px-4">
-                    Price (SAR)
-                  </th>
+
                   <th className="w-10" />
                 </tr>
               </thead>
 
               <tbody>
                 {items.map((it, idx) => {
-                  const priceError = errors[`repair.${idx}.price`]
-                  const labourError = errors[`repair.${idx}.labourHours`]
                   const descError = errors[`repair.${idx}.description`]
 
                   return (
