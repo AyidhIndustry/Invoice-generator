@@ -20,6 +20,6 @@ export const companyInfoArbi: Partial<Company> = {
   bankDetails: {
     bankName: 'مصرف الراجحي',
     IBAN: '٤٢٣٠٠-٠٠١-٠٠٠٦٠٨٦١٨٧٩٥٦',
-    accountNumber: 'SA١٧ ٨٠٠٠ ٠٤٢٣ ٦٠٨٠ ١٦١٨ ٧٩٥٦',
+    accountNumber: 'SA١٧٨٠٠٠٠٠٤٢٣٦٠٨٠١٦١٨٧٩٥٦',
   },
 }
