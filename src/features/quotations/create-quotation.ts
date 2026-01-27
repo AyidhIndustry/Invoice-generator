@@ -1,12 +1,27 @@
 // lib/purchases/create-purchase.ts
 import { db } from '@/lib/firebase-client'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
 import { CreateQuotationDTO } from '@/schemas/quotation.schema'
 
-function generateQuotationId() {
-  const num = Math.floor(10000000 + Math.random() * 90000000)
-  return `QUO-${num}`
+async function generateQuotationId(): Promise<string> {
+  const counterRef = doc(db, 'counters', 'quotation')
+
+  const nextNumber = await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(counterRef)
+
+    if (!snap.exists()) {
+      transaction.set(counterRef, { last: 1 })
+      return 1
+    }
+
+    const next = snap.data().last + 1
+    transaction.update(counterRef, { last: next })
+    return next
+  })
+
+  return `QUO-${String(nextNumber).padStart(5, '0')}`
 }
+
 
 export async function createQuotation(payload: any) {
   try {
@@ -23,7 +38,7 @@ export async function createQuotation(payload: any) {
     const data = result.data
 
     // Generate random ID
-    const id = generateQuotationId()
+    const id = await generateQuotationId()
 
     // Create doc with custom ID
     await setDoc(doc(db, 'quotations', id), {

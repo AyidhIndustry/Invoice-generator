@@ -1,12 +1,25 @@
 // lib/purchases/create-purchase.ts
 import { db } from '@/lib/firebase-client'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
 import { CreatePurchaseDTO } from '@/schemas/purchase.schema'
 
-function generatePurchaseId() {
-  // generates exactly 8 digits (10000000–99999999)
-  const num = Math.floor(10000000 + Math.random() * 90000000)
-  return `PUR-${num}`
+async function generatePurchaseId(): Promise<string> {
+  const counterRef = doc(db, 'counters', 'purchase')
+
+  const nextNumber = await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(counterRef)
+
+    if (!snap.exists()) {
+      transaction.set(counterRef, { last: 1 })
+      return 1
+    }
+
+    const next = snap.data().last + 1
+    transaction.update(counterRef, { last: next })
+    return next
+  })
+
+  return `PUR-${String(nextNumber).padStart(5, '0')}`
 }
 
 export async function createPurchase(payload: any) {
@@ -24,7 +37,7 @@ export async function createPurchase(payload: any) {
     const data = result.data
 
     // Generate random ID
-    const id = generatePurchaseId()
+    const id = await generatePurchaseId()
 
     // Create doc with custom ID
     await setDoc(doc(db, 'purchases', id), {

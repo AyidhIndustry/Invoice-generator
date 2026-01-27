@@ -1,12 +1,30 @@
 import { db } from '@/lib/firebase-client'
 import { CreateInvoiceDTO } from '@/schemas/invoice.schema'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import {
+  doc,
+  setDoc,
+  serverTimestamp,
+  runTransaction,
+} from 'firebase/firestore'
 
+async function generateInvoiceId(): Promise<string> {
+  const counterRef = doc(db, 'counters', 'invoice')
 
-function generateInvoiceId() {
-  // generates exactly 8 digits (10000000–99999999)
-  const num = Math.floor(10000000 + Math.random() * 90000000)
-  return `INV-${num}`
+  const nextNumber = await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(counterRef)
+
+    if (!snap.exists()) {
+      // fallback safety (won’t happen if you set last:17)
+      transaction.set(counterRef, { last: 18 })
+      return 18
+    }
+
+    const next = snap.data().last + 1
+    transaction.update(counterRef, { last: next })
+    return next
+  })
+
+  return `INV-${String(nextNumber).padStart(5, '0')}`
 }
 
 export async function createInvoice(payload: any) {
@@ -24,7 +42,7 @@ export async function createInvoice(payload: any) {
     const data = result.data
 
     // Generate random ID
-    const id = generateInvoiceId()
+    const id = await generateInvoiceId()
 
     // Create doc with custom ID
     await setDoc(doc(db, 'invoices', id), {

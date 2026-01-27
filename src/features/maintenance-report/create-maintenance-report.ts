@@ -1,12 +1,25 @@
 import { db } from '@/lib/firebase-client'
 import { CreateMaintenanceReportDTO } from '@/schemas/maintenance-report.schema'
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore'
+import { doc, setDoc, serverTimestamp, runTransaction } from 'firebase/firestore'
+async function generateMaintenanceId(): Promise<string> {
+  const counterRef = doc(db, 'counters', 'maintenanceReport')
 
-function generateMaintenanceId() {
-  // generates exactly 8 digits (10000000–99999999)
-  const num = Math.floor(10000000 + Math.random() * 90000000)
-  return `MR-${num}`
+  const nextNumber = await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(counterRef)
+
+    if (!snap.exists()) {
+      transaction.set(counterRef, { last: 1 })
+      return 1
+    }
+
+    const next = snap.data().last + 1
+    transaction.update(counterRef, { last: next })
+    return next
+  })
+
+  return `MR-${String(nextNumber).padStart(5, '0')}`
 }
+
 
 export async function createMaintenanceReport(payload: any) {
   try {
@@ -23,7 +36,7 @@ export async function createMaintenanceReport(payload: any) {
     const data = result.data
 
     // Generate random ID
-    const id = generateMaintenanceId()
+    const id = await generateMaintenanceId()
 
     // Create doc with custom ID
     await setDoc(doc(db, 'maintenance-reports', id), {
