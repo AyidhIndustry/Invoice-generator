@@ -66,18 +66,20 @@ const QuotationTable = ({
               return (
                 <TableRow key={quotation.id}>
                   <TableCell className="font-medium">{quotation.id}</TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal">
                     <div className="flex flex-col">
-                      <span className="font-medium">
+                      <span className="font-medium break-words">
                         {quotation.customer?.name ?? '—'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground break-words">
                         {quotation.customer?.email ?? '—'}
                       </span>
                     </div>
                   </TableCell>
                   <TableCell>{formatTimestamp(quotation.createdAt)}</TableCell>
-                  <TableCell>{quotation?.subject ?? '-'}</TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal break-words">
+                    {quotation?.subject ?? '-'}
+                  </TableCell>
                   <TableCell>
                     {typeof quotation.total === 'number'
                       ? `SAR ${quotation.total.toFixed(2)}`

@@ -77,12 +77,12 @@ export default function DeliveryNotesTable({
                   <TableCell className="font-medium">
                     {deliveryNote.id}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal">
                     <div className="flex flex-col">
-                      <span className="font-medium">
+                      <span className="font-medium break-words">
                         {deliveryNote.customer?.name ?? '—'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground break-words">
                         {deliveryNote.customer?.email ?? '—'}
                       </span>
                     </div>

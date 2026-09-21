@@ -159,9 +159,10 @@ export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
           </tbody>
         </table>
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
+          {/* SL No, Description */}
           <colgroup>
-            <col className="w-[15%]" /> {/* SL No */}
-            <col className="w-[85%]" /> {/* Description */}
+            <col className="w-[15%]" />
+            <col className="w-[85%]" />
           </colgroup>
 
           <thead>
@@ -210,9 +211,10 @@ export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
           </tbody>
         </table>
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-2">
+          {/* Label, Value */}
           <colgroup>
-            <col className="w-[30%]" /> {/* Label */}
-            <col className="w-[70%]" /> {/* Value */}
+            <col className="w-[30%]" />
+            <col className="w-[70%]" />
           </colgroup>
 
           <tbody>

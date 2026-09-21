@@ -162,10 +162,11 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
           </tbody>
         </table>
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
+          {/* SN, Item Title, Qty */}
           <colgroup>
-            <col className="w-[15%]" /> {/* SN */}
-            <col className="w-[60%]" /> {/* Item Title */}
-            <col className="w-[25%]" /> {/* Qty */} 
+            <col className="w-[15%]" />
+            <col className="w-[60%]" />
+            <col className="w-[25%]" />
           </colgroup>
           <thead>
             <tr>

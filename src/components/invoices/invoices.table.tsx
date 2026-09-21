@@ -71,12 +71,12 @@ export default function InvoiceTable({
               return (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">{invoice.id}</TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal">
                     <div className="flex flex-col">
-                      <span className="font-medium">
+                      <span className="font-medium break-words">
                         {invoice.customer?.name ?? '—'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground break-words">
                         {invoice.customer?.email ?? '—'}
                       </span>
                     </div>

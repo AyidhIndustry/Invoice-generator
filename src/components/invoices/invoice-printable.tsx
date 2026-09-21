@@ -201,15 +201,16 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
         </table>
         {/* Items table */}
         <table className="w-full table-fixed border-collapse border border-black text-xs mb-1">
+          {/* SN, Item Title, Qty, Price, VAT, %, Total, Grand Total */}
           <colgroup>
-            <col className="w-[10%]" /> {/* SN */}
-            <col className="w-[34%]" /> {/* Item Title */}
-            <col className="w-[8%]" /> {/* Qty */}
-            <col className="w-[10%]" /> {/* Price */}
-            <col className="w-[8%]" /> {/* VAT */}
-            <col className="w-[8%]" /> {/* % */}
-            <col className="w-[9%]" /> {/* Total */}
-            <col className="w-[14%]" /> {/* Grand Total */}
+            <col className="w-[10%]" />
+            <col className="w-[34%]" />
+            <col className="w-[8%]" />
+            <col className="w-[10%]" />
+            <col className="w-[8%]" />
+            <col className="w-[8%]" />
+            <col className="w-[9%]" />
+            <col className="w-[14%]" />
           </colgroup>
 
           <thead>

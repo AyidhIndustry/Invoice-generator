@@ -76,12 +76,12 @@ export default function MaintenanceReportTable({
                   <TableCell>
                     {formatTimestamp(maintenanceReport.date)}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal">
                     <div className="flex flex-col">
-                      <span className="font-medium">
+                      <span className="font-medium break-words">
                         {maintenanceReport.customer?.name ?? '—'}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground break-words">
                         {maintenanceReport.customer?.email ?? '—'}
                       </span>
                     </div>

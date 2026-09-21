@@ -72,7 +72,9 @@ export default function PurchasesTable({
                 <TableRow key={purchase.id}>
                   <TableCell className="font-medium">{purchase.id}</TableCell>
                   <TableCell>{formatTimestamp(purchase.date)}</TableCell>
-                  <TableCell>{purchase.description ?? '—'}</TableCell>
+                  <TableCell className="max-w-[220px] whitespace-normal break-words">
+                    {purchase.description ?? '—'}
+                  </TableCell>
                   <TableCell>SAR {nf.format(purchase.subTotal ?? '—')}</TableCell>
                   <TableCell>SAR {nf.format(purchase.taxTotal ?? '—')}</TableCell>
                   <TableCell>SAR {nf.format(purchase.total ?? '—')}</TableCell>
