@@ -60,11 +60,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
           <p className="text-sm">Address: Al-Oraifi Area 5001 Jubail, KSA</p>
           <h3>فاتورة ضريبية / Tax Invoice</h3>
           <div className="absolute right-2 top-2">
-            <InvoiceQRCode
-              invoice={invoice}
-              size={80}
-              payloadOptions={{ minify: true }}
-            />
+            <InvoiceQRCode invoice={invoice} size={80} />
           </div>
         </div>
         <table className="w-full border-collapse border border-black text-xs mb-1">

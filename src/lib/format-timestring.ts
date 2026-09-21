@@ -1,9 +1,9 @@
 // src/lib/format-timestamp.ts
 
-export function formatTimestamp(value: any): string {
-  if (!value && value !== 0) return "—";
-
+export function parseToDate(value: any): Date | null {
   let date: Date | null = null;
+
+  if (!value && value !== 0) return null;
 
   // 1) Firestore Timestamp (has toDate())
   if (typeof value?.toDate === "function") {
@@ -45,7 +45,19 @@ export function formatTimestamp(value: any): string {
     date = value;
   }
 
-  if (!date || isNaN(date.getTime())) return "—";
+  if (!date || isNaN(date.getTime())) return null;
+  return date;
+}
+
+// ZATCA TLV tag 3 requires an ISO 8601 UTC timestamp, e.g. "2024-05-01T13:45:30Z"
+export function toZatcaTimestamp(value: any): string {
+  const date = parseToDate(value) ?? new Date();
+  return date.toISOString().replace(/\.\d{3}Z$/, "Z");
+}
+
+export function formatTimestamp(value: any): string {
+  const date = parseToDate(value);
+  if (!date) return "—";
 
   // Formatting as "29th Nov, 2025"
   const day = date.getDate();

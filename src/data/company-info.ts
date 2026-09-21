@@ -1,7 +1,7 @@
 import { Company } from '@/schemas/company.schema'
 
 export const companyInfo: Company = {
-  name: 'Ayidh Mohammed Ayidh A- Dossary Industrial Workshop',
+  name: 'Ayidh Mohammed Ayidh Al-Dossary Industrial Workshop',
   address: 'Al-Oraifi Area 5001 Jubail, KSA ',
   email: 'info@ayidhindustryservices.com',
   phoneNumber: '0509162731',
