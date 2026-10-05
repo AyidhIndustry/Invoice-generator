@@ -1,6 +1,6 @@
-import { createInvoice } from '@/features/invoices/create-invoice'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import { createInvoice } from '@/features/invoices/create-invoice'
 
 export function useCreateInvoice() {
   const qc = useQueryClient()
@@ -16,9 +16,9 @@ export function useCreateInvoice() {
       toast.success('Invoice created.')
       qc.invalidateQueries({ queryKey: ['invoices'] })
     },
-    onError: (err: any) => {
+    onError: (err) => {
       toast.dismiss()
-      toast.error(err?.message ?? 'Something went wrong.')
+      toast.error(err.message || 'Something went wrong.')
     },
   })
 }

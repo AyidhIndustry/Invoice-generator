@@ -1,4 +1,3 @@
-// components/InvoicePrintable.tsx
 import { companyInfo, companyInfoArbi } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
 import { convertSAR } from '@/lib/number-to-words'
@@ -9,17 +8,15 @@ import { nf } from '@/lib/number-format'
 
 type Props = {
   invoice?: Invoice | null
-  onReady: ()=> void
+  onReady: () => void
 }
 
-
-
 export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
-  ({ invoice, onReady }, ref) => {  
-     useEffect(() => {
+  ({ invoice, onReady }, ref) => {
+    useEffect(() => {
       onReady?.()
-    }, [])
-    
+    }, [onReady])
+
     if (!invoice) return null
 
     const items = invoice.items ?? []
@@ -37,6 +34,8 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
+            {/* A plain <img> loads eagerly, so the logo is present when printing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 
@@ -287,7 +286,7 @@ export const InvoicePrintable = forwardRef<HTMLDivElement, Props>(
                   typeof it.unitTotal === 'number'
                     ? it.unitTotal
                     : Number(it.unitTotal ?? 0)
-                const grandTotal = Number(total +vatAmount)
+                const grandTotal = Number(total + vatAmount)
 
                 return (
                   <tr key={idx} className="align-top">

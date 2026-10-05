@@ -1,15 +1,10 @@
-// lib/firebase/purchases.ts
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase-client"; 
-import { DeliveryNote } from "@/schemas/delivery-note.schema";
+import { getDocumentById } from '@/lib/firestore'
+import { DeliveryNote } from '@/schemas/delivery-note.schema'
 
-export async function getDeliveryNoteById(id: string): Promise<DeliveryNote> {
-  const ref = doc(db, "delivery-notes", id);
-  const snap = await getDoc(ref);
-
-  if (!snap.exists()) {
-    throw new Error("Delivery note not found");
-  }
-
-  return { id: snap.id, ...snap.data() } as DeliveryNote;
+export function getDeliveryNoteById(id: string) {
+  return getDocumentById<DeliveryNote>(
+    'delivery-notes',
+    id,
+    'Delivery note not found',
+  )
 }

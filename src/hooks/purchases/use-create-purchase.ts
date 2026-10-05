@@ -1,6 +1,6 @@
-import { createPurchase } from '@/features/purchases/create-purchase'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import { createPurchase } from '@/features/purchases/create-purchase'
 
 export function useCreatePurchase() {
   const qc = useQueryClient()
@@ -16,9 +16,9 @@ export function useCreatePurchase() {
       toast.success('Purchase created.')
       qc.invalidateQueries({ queryKey: ['purchases'] })
     },
-    onError: (err: any) => {
+    onError: (err) => {
       toast.dismiss()
-      toast.error(err?.message ?? 'Something went wrong.')
+      toast.error(err.message || 'Something went wrong.')
     },
   })
 }

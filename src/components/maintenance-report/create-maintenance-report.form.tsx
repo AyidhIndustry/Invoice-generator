@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { defaultMaintenanceReport } from '@/default-values/maintenance-report.default'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,15 +11,6 @@ import { Trash2, Plus } from 'lucide-react'
 import { CreateMaintenanceReportDTO } from '@/schemas/maintenance-report.schema'
 import z from 'zod'
 import { useCreateMaintenanceReport } from '@/hooks/maintenance-report/use-create-maintenance-report'
-import { nf } from '@/lib/number-format'
-
-const TAX_PERCENT = Number(process.env.NEXT_PUBLIC_TAX || 0)
-
-const toNumber = (v: string | number) => {
-  if (v === '' || v === null || v === undefined) return 0
-  const n = Number(v)
-  return Number.isNaN(n) ? 0 : n
-}
 
 export default function CreateMaintenanceReportForm() {
   const [formData, setFormData] = useState(defaultMaintenanceReport)

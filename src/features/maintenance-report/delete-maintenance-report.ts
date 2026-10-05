@@ -1,8 +1,5 @@
-    import { db } from '@/lib/firebase-client'
-import { doc, deleteDoc } from 'firebase/firestore'
+import { deleteDocumentById } from '@/lib/firestore'
 
-export async function deleteMaintenanceReport(id: string) {
-  if (!id) throw new Error('Invalid id')
-  await deleteDoc(doc(db, 'maintenance-reports', id))
-  return { id }
+export function deleteMaintenanceReport(id: string) {
+  return deleteDocumentById('maintenance-reports', id)
 }

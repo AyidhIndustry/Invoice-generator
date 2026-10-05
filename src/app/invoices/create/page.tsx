@@ -1,9 +1,19 @@
 import CreateInvoiceForm from '@/components/invoices/create-invoice.form'
+import CreateInvoiceFromQuotation from '@/components/invoices/create-invoice-from-quotation'
 import ContentLayout from '@/components/layout/content.layout'
 import PageLayout from '@/components/layout/page.layout'
 import BackButton from '@/components/ui/back-button'
 
-const InvoiceCreatePage = () => {
+interface InvoiceCreatePageProps {
+  searchParams: Promise<{ quotationId?: string | string[] }>
+}
+
+const InvoiceCreatePage = async ({ searchParams }: InvoiceCreatePageProps) => {
+  const { quotationId: rawQuotationId } = await searchParams
+  const quotationId = Array.isArray(rawQuotationId)
+    ? rawQuotationId[0]
+    : rawQuotationId
+
   return (
     <PageLayout>
       <ContentLayout>
@@ -17,7 +27,11 @@ const InvoiceCreatePage = () => {
             </div>
             <BackButton />
           </div>
-          <CreateInvoiceForm />
+          {quotationId ? (
+            <CreateInvoiceFromQuotation quotationId={quotationId} />
+          ) : (
+            <CreateInvoiceForm />
+          )}
         </div>
       </ContentLayout>
     </PageLayout>

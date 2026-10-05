@@ -21,12 +21,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const TTL_MS = 6 * 60 * 60 * 1000;
 const STORAGE_KEY = "ayidh_industry_auth_session";
 
-function isSessionObj(obj: any): obj is Session {
+function isSessionObj(obj: unknown): obj is Session {
+  if (typeof obj !== "object" || obj === null) return false;
+  const candidate = obj as Partial<Record<keyof Session, unknown>>;
   return (
-    obj &&
-    typeof obj.username === "string" &&
-    typeof obj.createdAt === "number" &&
-    typeof obj.expiresAt === "number"
+    typeof candidate.username === "string" &&
+    typeof candidate.createdAt === "number" &&
+    typeof candidate.expiresAt === "number"
   );
 }
 
@@ -67,21 +68,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<Session | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // initial load
+  // Restore the session after mount: localStorage is unavailable during
+  // server rendering, so reading it in the initial state would cause a
+  // hydration mismatch.
   useEffect(() => {
     const session = loadSessionFromStorage();
-    if (!session) {
-      setUser(null);
-      return;
-    }
+    if (!session) return;
 
-    // remove if expired (explicit)
     if (session.expiresAt <= Date.now()) {
       localStorage.removeItem(STORAGE_KEY);
-      setUser(null);
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time sync from browser storage
     setUser(session);
   }, []);
 
@@ -106,8 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setError("Invalid credentials");
       return { ok: false, error: "Invalid credentials" };
     } catch (err: unknown) {
-      const msg =
-        typeof err === "object" && err !== null && "message" in err ? String((err as any).message) : "Unknown error";
+      const msg = err instanceof Error ? err.message : "Unknown error";
       setError(msg);
       return { ok: false, error: msg };
     }
@@ -118,11 +116,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  // Pure computed boolean; no side-effects here.
-  const isAuthenticated = useMemo(() => {
-    if (!user) return false;
-    return user.expiresAt > Date.now();
-  }, [user]);
+  // Expired sessions are never set (checked on load) and are cleared by the
+  // background checker below, so a present user is an active session.
+  const isAuthenticated = user !== null;
 
   // background checker only when a session exists (reduces accidental removals when nothing is present)
   useEffect(() => {

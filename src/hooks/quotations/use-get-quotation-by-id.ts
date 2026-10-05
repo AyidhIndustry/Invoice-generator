@@ -1,4 +1,3 @@
-// hooks/usePurchase.ts
 import { useQuery } from '@tanstack/react-query'
 import { getQuotationById } from '@/features/quotations/get-quotation-by-id'
 

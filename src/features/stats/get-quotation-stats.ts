@@ -1,7 +1,6 @@
-import { Quarter } from '@/context/stat.context'
 import { db } from '@/lib/firebase-client'
-import { normalizeToDate } from '@/lib/normalize-dates'
-import { getQuarterRange } from '@/lib/quarter'
+import { parseToDate } from '@/lib/format-timestring'
+import { getQuarterRange, Quarter } from '@/lib/quarter'
 import { collection, getDocs } from 'firebase/firestore'
 
 export async function getQuotationStats(year: number, quarter: Quarter) {
@@ -11,7 +10,7 @@ export async function getQuotationStats(year: number, quarter: Quarter) {
 
   snap.forEach((doc) => {
     const data = doc.data()
-    const createdAt = normalizeToDate(data?.createdAt)
+    const createdAt = parseToDate(data?.createdAt)
 
     if (createdAt && createdAt >= start && createdAt < end) {
       quotationCount++
@@ -19,6 +18,6 @@ export async function getQuotationStats(year: number, quarter: Quarter) {
   })
 
   return {
-    quotationCount
+    quotationCount,
   }
 }

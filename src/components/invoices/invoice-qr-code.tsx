@@ -1,4 +1,3 @@
-// components/InvoiceQRCode.tsx
 import React from 'react'
 import QRCode from 'react-qr-code'
 import { Invoice } from '@/schemas/invoice.schema'

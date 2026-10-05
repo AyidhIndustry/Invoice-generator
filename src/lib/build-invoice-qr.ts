@@ -1,4 +1,3 @@
-// lib/build-invoice-qr.ts
 import { Invoice } from '@/schemas/invoice.schema'
 import { companyInfo } from '@/data/company-info'
 import { toZatcaTimestamp } from './format-timestring'

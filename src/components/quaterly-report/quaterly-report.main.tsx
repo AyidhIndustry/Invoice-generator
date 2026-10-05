@@ -1,4 +1,3 @@
-// File: app/reports/quarterly-report.tsx
 'use client'
 
 import React, { useMemo } from 'react'
@@ -52,23 +51,8 @@ const formatCurrency = (value: number) =>
 export default function QuarterlyReport() {
   const { data, isPending, isError, refetch } = useStats()
 
-  // If your context ever provides an explicit time-series, it might look like:
-  // data.monthly = [{ month: 'Oct', invoices: 20, quotations: 5, purchases: 7, tax: 1200 }, ...]
-  // We check for that and fallback to a simulation of 3 months in the quarter.
+  // Stats only provide quarter totals, so the monthly split is simulated.
   const chartData = useMemo(() => {
-    const maybeMonthly = (data as any).monthly
-    if (Array.isArray(maybeMonthly) && maybeMonthly.length >= 1) {
-      // normalize to expected keys (month, invoices, quotations, purchases, tax)
-      return maybeMonthly.map((m: any) => ({
-        month: m.month ?? m.label ?? m.name ?? 'Month',
-        invoices: m.invoices ?? 0,
-        quotations: m.quotations ?? 0,
-        purchases: m.purchases ?? 0,
-        tax: m.tax ?? 0,
-      }))
-    }
-
-    // fallback: simulate a 3-month quarter split from totals
     const months = ['Month 1', 'Month 2', 'Month 3']
     const [inv0, inv1, inv2] = simulateMonthlySplit(data.invoiceCount)
     const [quo0, quo1, quo2] = simulateMonthlySplit(data.quotationCount)
@@ -94,7 +78,7 @@ export default function QuarterlyReport() {
   // simple CSV exporter for the chart data
   const exportCsv = () => {
     const header = ['month', 'invoices', 'quotations', 'purchases', 'tax']
-    const rows = chartData.map((r: any) => [r.month, r.invoices, r.quotations, r.purchases, r.tax])
+    const rows = chartData.map((r) => [r.month, r.invoices, r.quotations, r.purchases, r.tax])
     const csv = [header, ...rows].map((r) => r.join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
@@ -162,9 +146,9 @@ export default function QuarterlyReport() {
           </div>
 
           <div className="p-4 rounded-xl bg-white/40 shadow-sm">
-            <div className="text-sm text-slate-600">Total Tax Paid</div>
+            <div className="text-sm text-slate-600">Total Tax Received</div>
             <div className="text-2xl font-extrabold">{formatCurrency(data.totalTaxReceived)}</div>
-            <div className="text-xs text-slate-500 mt-1">Sum of Total tax recieved</div>
+            <div className="text-xs text-slate-500 mt-1">VAT collected on invoices this quarter</div>
           </div>
         </div>
 
@@ -187,24 +171,24 @@ export default function QuarterlyReport() {
               </ResponsiveContainer>
             </div>
             <p className="text-xs mt-2 text-slate-500">
-              Note: if your backend provides monthly breakdown (data.monthly) the chart will render real monthly values; otherwise a sensible split is shown.
+              Note: monthly values are an estimated split of the quarter totals, not actual monthly figures.
             </p>
           </section>
 
           <section className="p-4 bg-white/40 rounded-xl shadow-sm">
-            <h2 className="text-lg font-semibold mb-3">Tax paid trend</h2>
+            <h2 className="text-lg font-semibold mb-3">Tax paid trend (purchases)</h2>
             <div style={{ height: 280 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Line type="monotone" dataKey="tax" name="Tax Paid" stroke={COLORS[3]} strokeWidth={2} dot />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-xs mt-2 text-slate-500">Shows how total tax paid moved across the quarter months.</p>
+            <p className="text-xs mt-2 text-slate-500">Estimated split of VAT paid on purchases across the quarter months.</p>
           </section>
         </div>
 

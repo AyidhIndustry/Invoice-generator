@@ -12,11 +12,10 @@ export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
   ({ report, onReady }, ref) => {
     useEffect(() => {
       onReady?.()
-    }, [])
+    }, [onReady])
 
     if (!report) return null
 
-    const items = report.repair ?? []
 
     return (
       <div className="p-8" ref={ref}>
@@ -31,6 +30,8 @@ export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
+            {/* A plain <img> loads eagerly, so the logo is present when printing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 
@@ -250,3 +251,5 @@ export const MaintenanceReportPrintable = forwardRef<HTMLDivElement, Props>(
     )
   },
 )
+
+MaintenanceReportPrintable.displayName = 'MaintenanceReportPrintable'

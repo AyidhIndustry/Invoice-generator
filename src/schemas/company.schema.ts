@@ -1,5 +1,11 @@
 import z from 'zod'
 
+export const BankDetailsSchema = z.object({
+  bankName: z.string().min(1, 'Bank name is required'),
+  IBAN: z.string().min(1, 'IBAN is required'),
+  accountNumber: z.string().min(1, 'Account number is required'),
+})
+
 export const CompanySchema = z.object({
   name: z.string().min(1, 'Company name is required'),
   address: z.string().optional(),
@@ -8,11 +14,7 @@ export const CompanySchema = z.object({
   VATNumber: z.string().optional(),
   CRNumber: z.string().optional(),
   website: z.string().optional(),
-  bankDetails: z.object({
-    bankName: z.string().min(1, 'Bank name is required'),
-    IBAN: z.string().min(1, 'IBAN is required'),
-    accountNumber: z.string().min(1, 'Account number is required'),
-  }).optional(),
+  bankDetails: BankDetailsSchema.optional(),
 })
 
 export type Company = z.infer<typeof CompanySchema>

@@ -10,6 +10,7 @@ import { Plus, Trash2, Loader2 } from 'lucide-react'
 import { companyInfo } from '@/data/company-info'
 import { numberToWords } from 'convert-number-to-words'
 import { useCreateQuotation } from '@/hooks/quotations/use-create-quotation'
+import { computeInvoiceTotals, TAX_PERCENT } from '@/lib/invoice-totals'
 import {
   CreateQuotationDTO,
   CreateQuotationDTOType,
@@ -24,12 +25,8 @@ const defaultItem = () => ({
 })
 
 export default function CreateQuotationForm() {
-  const TAX_PERCENT = useMemo(() => {
-    const v = Number(process.env.NEXT_PUBLIC_TAX)
-    return Number.isFinite(v) ? v : 0
-  }, [])
-
-  const { mutate: createQuotation, isPending } = useCreateQuotation()
+  // mutateAsync rejects on failure, so the form is only reset after a save.
+  const { mutateAsync: createQuotation, isPending } = useCreateQuotation()
 
   const [customer, setCustomer] = useState({
     name: '',
@@ -46,32 +43,15 @@ export default function CreateQuotationForm() {
   )
 
   const calculated = useMemo(() => {
-    const computed = items.map((it) => {
-      const qty = Number(it.quantity) || 0
-      const price = Number(it.unitPrice) || 0
-      const unitTotal = Number((qty * price).toFixed(2))
-      const taxAmount = Number(((unitTotal * TAX_PERCENT) / 100).toFixed(2))
-      const lineTotal = Number((unitTotal + taxAmount).toFixed(2))
-      return {
+    const totals = computeInvoiceTotals(items)
+    return {
+      ...totals,
+      computed: totals.items.map((it) => ({
         ...it,
-        quantity: qty,
-        unitPrice: price,
-        unitTotal,
-        taxAmount,
-        lineTotal,
-      }
-    })
-
-    const subTotal = Number(
-      computed.reduce((s, it) => s + it.unitTotal, 0).toFixed(2),
-    )
-    const taxTotal = Number(
-      computed.reduce((s, it) => s + it.taxAmount, 0).toFixed(2),
-    )
-    const total = Number((subTotal + taxTotal).toFixed(2))
-
-    return { computed, subTotal, taxTotal, total }
-  }, [items, TAX_PERCENT])
+        lineTotal: Number((it.unitTotal + it.taxAmount).toFixed(2)),
+      })),
+    }
+  }, [items])
 
   function updateItem(
     index: number,
@@ -96,61 +76,28 @@ export default function CreateQuotationForm() {
     return {
       customer,
       subject,
-      items: calculated.computed.map((it) => ({
-        title: it.title,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
-        taxAmount: it.taxAmount,
-        unitTotal: it.unitTotal,
-      })),
+      items: calculated.items,
       subTotal: calculated.subTotal,
       taxTotal: calculated.taxTotal,
       total: calculated.total,
-      notes,
-    } as CreateQuotationDTOType
+      // Stored as `details`, which the printed quotation shows.
+      details: notes,
+    }
   }
 
-  // validate with runtime schema if available
   function runRuntimeValidation(payload: CreateQuotationDTOType) {
+    const result = CreateQuotationDTO.safeParse(payload)
+
+    if (!result.success) {
+      setValidationErrors(
+        result.error.issues.map(
+          (issue) => `${issue.path.join('.')} — ${issue.message}`,
+        ),
+      )
+      return false
+    }
+
     setValidationErrors(null)
-
-    // If CreateQuotationDTO has safeParse (zod-like), use it
-    const anySchema: any = CreateQuotationDTO
-    if (anySchema && typeof anySchema.safeParse === 'function') {
-      const result = anySchema.safeParse(payload)
-      if (!result.success) {
-        const errs: string[] = []
-        const issues = result.error?.issues ?? []
-        for (const issue of issues) {
-          errs.push(`${issue.path.join('.')} — ${issue.message}`)
-        }
-        setValidationErrors(errs)
-        return false
-      }
-      return true
-    }
-
-    // If it has parse (could throw), try/catch
-    if (anySchema && typeof anySchema.parse === 'function') {
-      try {
-        anySchema.parse(payload)
-        return true
-      } catch (err: any) {
-        // attempt to extract messages
-        if (err?.issues && Array.isArray(err.issues)) {
-          setValidationErrors(
-            err.issues.map((i: any) => `${i.path.join('.')} — ${i.message}`),
-          )
-        } else if (err?.message) {
-          setValidationErrors([err.message])
-        } else {
-          setValidationErrors(['Payload failed schema.parse validation'])
-        }
-        return false
-      }
-    }
-
-    // No runtime validator found — treat as OK (TypeScript compile-time only)
     return true
   }
 
@@ -170,7 +117,6 @@ export default function CreateQuotationForm() {
 
     const payload = buildPayload()
 
-    // runtime schema validation (if available)
     const ok = runRuntimeValidation(payload)
     if (!ok) {
       // runRuntimeValidation already populated validationErrors
@@ -178,8 +124,7 @@ export default function CreateQuotationForm() {
     }
 
     try {
-      // await the mutation (this will trigger toasts via your hook)
-      await createQuotation(payload as any)
+      await createQuotation(payload)
 
       // reset form only after successful creation
       setCustomer({ name: '', address: '', VATNumber: '', email: '' })
@@ -188,9 +133,8 @@ export default function CreateQuotationForm() {
       setItems([defaultItem()])
       setValidationErrors(null)
     } catch (err) {
-      // do not toast here — your hook handles onError toasting.
-      // optionally keep any minimal client-side handling here (none required)
-      console.error('createQuotation failed', err)
+      // The mutation hook already shows the error toast; keep the form intact.
+      console.error('Failed to create quotation:', err)
     }
   }
 

@@ -13,13 +13,14 @@ import { formatTimestamp } from '@/lib/format-timestring'
 import { useDeleteQuotation } from '@/hooks/quotations/use-delete-quotation'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import { PrintQuotationButton } from './print-quotation-button'
+import { GenerateInvoiceButton } from './generate-invoice-button'
 
 const QuotationTable = ({
-  quotations,
+  quotations = [],
   isPending,
   isError,
 }: {
-  quotations: any[]
+  quotations?: Quotation[]
   isPending: boolean
   isError: boolean
 }) => {
@@ -45,7 +46,7 @@ const QuotationTable = ({
           {isPending && <SkeletonTable />}
           {isError && !isPending && (
             <TableRow>
-              <TableCell colSpan={5} className="py-6 text-center text-red-600">
+              <TableCell colSpan={6} className="py-6 text-center text-red-600">
                 Failed to load Quotations.
               </TableCell>
             </TableRow>
@@ -53,16 +54,16 @@ const QuotationTable = ({
           {!isPending && !isError && quotations.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={5}
+                colSpan={6}
                 className="py-6 text-center text-muted-foreground"
               >
-                No invoices found.
+                No quotations found.
               </TableCell>
             </TableRow>
           )}
           {!isPending &&
             !isError &&
-            quotations.map((quotation: Quotation) => {
+            quotations.map((quotation) => {
               return (
                 <TableRow key={quotation.id}>
                   <TableCell className="font-medium">{quotation.id}</TableCell>
@@ -87,7 +88,9 @@ const QuotationTable = ({
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <PrintQuotationButton quotation={quotation}/>
+                      <PrintQuotationButton quotation={quotation} />
+
+                      <GenerateInvoiceButton quotationId={quotation.id} />
 
                       {/* DELETE */}
                       <DeleteItemDialog

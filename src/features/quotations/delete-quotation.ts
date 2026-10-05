@@ -1,9 +1,5 @@
-// lib/purchases/delete-purchase.ts
-import { db } from '@/lib/firebase-client'
-import { doc, deleteDoc } from 'firebase/firestore'
+import { deleteDocumentById } from '@/lib/firestore'
 
-export async function deleteQuotation(id: string) {
-  if (!id) throw new Error('Invalid id')
-  await deleteDoc(doc(db, 'quotations', id))
-  return { id }
+export function deleteQuotation(id: string) {
+  return deleteDocumentById('quotations', id)
 }

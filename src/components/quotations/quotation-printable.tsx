@@ -1,4 +1,3 @@
-// components/InvoicePrintable.tsx
 import { companyInfo } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
 import { nf } from '@/lib/number-format'
@@ -16,7 +15,7 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
   ({ quotation, onReady }, ref) => {
     useEffect(() => {
       onReady?.()
-    }, [])
+    }, [onReady])
 
     if (!quotation) return null
 
@@ -42,7 +41,8 @@ export const QuotationPrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
-            {/* If you use next/image you can improve optimization, but <img> is fine for printing */}
+            {/* A plain <img> loads eagerly, so the logo is present when printing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 

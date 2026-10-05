@@ -1,9 +1,14 @@
-// components/InvoicePrintable.tsx
 import { companyInfo } from '@/data/company-info'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { convertSAR } from '@/lib/number-to-words'
 import { DeliveryNote } from '@/schemas/delivery-note.schema'
+import { PaymentType } from '@/schemas/enums/payment-type.enum'
 import React, { forwardRef, useEffect } from 'react'
+
+const PAYMENT_TYPE_LABELS: Record<PaymentType, string> = {
+  CASH: 'Cash / نقدا',
+  CREDIT_CARD: 'Credit Card / بطاقة ائتمان',
+  BANK_TRANSFER: 'Bank Transfer / تحويل بنكي',
+}
 
 type Props = {
   deliveryNote?: DeliveryNote | null
@@ -15,7 +20,7 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
   ({ deliveryNote, onReady }, ref) => {
     useEffect(() => {
       onReady?.()
-    }, [])
+    }, [onReady])
 
     if (!deliveryNote) return null
 
@@ -34,7 +39,8 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="flex justify-center items-center">
-            {/* If you use next/image you can improve optimization, but <img> is fine for printing */}
+            {/* A plain <img> loads eagerly, so the logo is present when printing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={'/logo-dark.png'} className="h-20" alt="logo" />
           </div>
 
@@ -81,8 +87,8 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
           <tbody>
             <tr>
               <td className="border border-black p-1 text-left align-top font-semibold">
-                Quote No
-                <br /> رقم الإقتباس
+                Delivery Note No
+                <br /> رقم إشعار التسليم
               </td>
               <td className="border border-black p-1 text-left">
                 {deliveryNote.id}
@@ -111,6 +117,24 @@ export const DeliveryNotePrintable = forwardRef<HTMLDivElement, Props>(
               </td>
               <td className="border border-black p-1 text-left">
                 {deliveryNote.customer?.VATNumber ?? ''}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Invoice No
+                <br /> رقم الفاتورة
+              </td>
+              <td className="border border-black p-1 text-left">
+                {deliveryNote.invId || '—'}
+              </td>
+              <td className="border border-black p-1 text-left align-top font-semibold">
+                Payment
+                <br /> طريقة الدفع
+              </td>
+              <td className="border border-black p-1 text-left">
+                {deliveryNote.paymentType
+                  ? PAYMENT_TYPE_LABELS[deliveryNote.paymentType]
+                  : ''}
               </td>
             </tr>
             <tr>

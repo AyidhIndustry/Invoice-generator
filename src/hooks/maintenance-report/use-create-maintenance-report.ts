@@ -1,6 +1,6 @@
-import { createMaintenanceReport } from '@/features/maintenance-report/create-maintenance-report'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import { createMaintenanceReport } from '@/features/maintenance-report/create-maintenance-report'
 
 export function useCreateMaintenanceReport() {
   const qc = useQueryClient()
@@ -16,9 +16,9 @@ export function useCreateMaintenanceReport() {
       toast.success('Maintenance report created.')
       qc.invalidateQueries({ queryKey: ['maintenance-reports'] })
     },
-    onError: (err: any) => {
+    onError: (err) => {
       toast.dismiss()
-      toast.error(err?.message ?? 'Something went wrong.')
+      toast.error(err.message || 'Something went wrong.')
     },
   })
 }

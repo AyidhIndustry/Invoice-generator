@@ -3,10 +3,11 @@
 import React, { createContext, useContext, useMemo, useState } from 'react'
 import { useGetStats } from '@/hooks/use-get-stats'
 import { getCurrentQuarter } from '@/lib/get-current-quarter'
+import { Quarter } from '@/lib/quarter'
 
 /* ================= TYPES ================= */
 
-export type Quarter = 1 | 2 | 3 | 4
+export type { Quarter } from '@/lib/quarter'
 
 type StatsData = {
   invoiceCount: number

@@ -1,4 +1,4 @@
-import { Quarter } from 'date-fns'
+import { Quarter } from '@/lib/quarter'
 import { getInvoiceStats } from './get-invoice-stats'
 import { getPurchaseStats } from './get-purchase-stats'
 import { getQuotationStats } from './get-quotation-stats'
@@ -19,4 +19,3 @@ export async function getStats(year: number, quarter: Quarter) {
       100,
   }
 }
-  

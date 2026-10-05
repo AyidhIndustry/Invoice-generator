@@ -1,6 +1,6 @@
-import { createDeliveryNote } from '@/features/delivery-notes/create-delivery-note'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
+import { createDeliveryNote } from '@/features/delivery-notes/create-delivery-note'
 
 export function useCreateDeliveryNote() {
   const qc = useQueryClient()
@@ -16,9 +16,9 @@ export function useCreateDeliveryNote() {
       toast.success('Delivery note created.')
       qc.invalidateQueries({ queryKey: ['delivery-notes'] })
     },
-    onError: (err: any) => {
+    onError: (err) => {
       toast.dismiss()
-      toast.error(err?.message ?? 'Something went wrong.')
+      toast.error(err.message || 'Something went wrong.')
     },
   })
 }

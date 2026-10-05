@@ -1,6 +1,5 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import {
   Table,
   TableHeader,
@@ -12,18 +11,19 @@ import {
 import { Invoice } from '@/schemas/invoice.schema'
 import { SkeletonTable } from '../ui/skeleton-table'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { Printer } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import { useDeleteInvoice } from '@/hooks/invoices/use-delete-invoice'
 import { PrintInvoiceButton } from './print-invoice-button'
+import { EditInvoiceButton } from './edit-invoice-button'
+import { CreateDeliveryNoteButton } from './create-delivery-note-button'
 import { nf } from '@/lib/number-format'
 
 export default function InvoiceTable({
-  invoices,
+  invoices = [],
   isPending,
   isError,
 }: {
-  invoices: Invoice[]
+  invoices?: Invoice[]
   isPending: boolean
   isError: boolean
 }) {
@@ -49,7 +49,7 @@ export default function InvoiceTable({
           {isPending && <SkeletonTable />}
           {isError && !isPending && (
             <TableRow>
-              <TableCell colSpan={6} className="py-6 text-center text-red-600">
+              <TableCell colSpan={5} className="py-6 text-center text-red-600">
                 Failed to load Invoices.
               </TableCell>
             </TableRow>
@@ -57,7 +57,7 @@ export default function InvoiceTable({
           {invoices && !isPending && !isError && invoices.length === 0 && (
             <TableRow>
               <TableCell
-                colSpan={6}
+                colSpan={5}
                 className="py-6 text-center text-muted-foreground"
               >
                 No Invoices found.
@@ -67,7 +67,7 @@ export default function InvoiceTable({
           {invoices &&
             !isPending &&
             !isError &&
-            invoices.map((invoice: Invoice) => {
+            invoices.map((invoice) => {
               return (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">{invoice.id}</TableCell>
@@ -85,7 +85,11 @@ export default function InvoiceTable({
                   <TableCell>SAR {nf.format(invoice.total ?? '—')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end items-center gap-2">
-                      <PrintInvoiceButton invoice={invoice}/>
+                      <PrintInvoiceButton invoice={invoice} />
+
+                      <EditInvoiceButton invoiceId={invoice.id} />
+
+                      <CreateDeliveryNoteButton invoiceId={invoice.id} />
 
                       <DeleteItemDialog
                         name="Invoice"

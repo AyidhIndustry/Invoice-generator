@@ -5,13 +5,21 @@ import { format } from 'date-fns'
 import { FilterType, Mode } from '@/schemas/filter.type'
 import { Label } from '@/components/ui/label'
 import {
-  Select, SelectTrigger, SelectValue, SelectContent,
-  SelectGroup, SelectItem,
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
 } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { MonthPicker } from './ui/month-picker' 
+import { MonthPicker } from './ui/month-picker'
 
 type Props = {
   filters: FilterType
@@ -28,24 +36,18 @@ const TableFilter: React.FC<Props> = ({
   isFetching = false,
   onReset = () => {},
 }) => {
-
   const currentType = filters.type as Mode
 
-  const currentDate =
-    filters.type === 'date' ? (filters as any).date as Date | undefined : undefined
+  const currentDate = filters.type === 'date' ? filters.date : undefined
 
   const currentMonth =
-    filters.type === 'month' &&
-    typeof (filters as any).year === 'number' &&
-    typeof (filters as any).month === 'number'
-      ? `${(filters as any).year}-${String((filters as any).month).padStart(2, '0')}`
+    filters.type === 'month' && filters.year && filters.month
+      ? `${filters.year}-${String(filters.month).padStart(2, '0')}`
       : undefined
 
-  const handleType = (type: Mode) => {
-    if (type === 'all') return setFilters({ type: 'all' })
-    if (type === 'date') return setFilters({ type: 'date', date: undefined as any })
-    if (type === 'month') return setFilters({ type: 'month', year: undefined as any, month: undefined as any } as any)
-  }
+  // Switching mode starts an empty filter, which lists everything until a
+  // date or month is picked.
+  const handleType = (type: Mode) => setFilters({ type })
 
   const handleDate = (d?: Date) => {
     if (!d) return setFilters({ type: 'all' })
@@ -72,7 +74,10 @@ const TableFilter: React.FC<Props> = ({
 
         <div className="flex items-center gap-3 mt-2">
           {/* TYPE SELECTOR */}
-          <Select value={currentType} onValueChange={(v) => handleType(v as Mode)}>
+          <Select
+            value={currentType}
+            onValueChange={(v) => handleType(v as Mode)}
+          >
             <SelectTrigger className="w-36">
               <SelectValue />
             </SelectTrigger>

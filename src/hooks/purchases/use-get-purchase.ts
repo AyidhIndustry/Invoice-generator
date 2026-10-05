@@ -1,15 +1,13 @@
-// hooks/useGetPurchases.ts
-import { useQuery } from '@tanstack/react-query'
-import { getAllPurchases, PurchasesFilter } from '@/features/purchases/get-purchases'
-import { Purchase } from '@/schemas/purchase.schema'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { getAllPurchases } from '@/features/purchases/get-purchases'
+import { FilterType } from '@/schemas/filter.type'
 
-export function useGetPurchases(filter: PurchasesFilter = { type: 'all' }) {
-  const key = ['purchases', filter]
-
-  return useQuery<Purchase[], Error>({
-    queryKey: key,
+export function useGetPurchases(filter: FilterType = { type: 'all' }) {
+  return useQuery({
+    queryKey: ['purchases', filter],
     queryFn: () => getAllPurchases(filter),
-    keepPreviousData: true,
+    // Keep showing the current rows while a new filter loads.
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 30,
-  } as any)
+  })
 }

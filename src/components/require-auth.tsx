@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/auth.context'
 import {
@@ -18,17 +18,12 @@ export const RequireAuth: React.FC<{
 }> = ({ children, redirectTo = '/auth' }) => {
   const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
-  const [checking, setChecking] = useState(true)
-
   useEffect(() => {
-    if (isAuthenticated) {
-      setChecking(false)
-      return
-    }
-    setChecking(false)
+    if (isAuthenticated) return
+
     const t = setTimeout(() => router.push(redirectTo), 600)
     return () => clearTimeout(t)
-  }, [isAuthenticated, logout, router, redirectTo])
+  }, [isAuthenticated, router, redirectTo])
 
   if (isAuthenticated && user) return <>{children}</>
 

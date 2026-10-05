@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { getStats } from '@/features/stats/get-stats'
-import { Quarter } from '@/context/stat.context'
+import { Quarter } from '@/lib/quarter'
 
 type Params = {
   year: number
@@ -12,6 +12,6 @@ export function useGetStats({ year, quarter }: Params) {
     queryKey: ['stats', year, quarter],
     queryFn: () => getStats(year, quarter),
     staleTime: 1000 * 60 * 10, // 10 minutes
-    placeholderData: (previousData) => previousData,   // smooth quarter switching
+    placeholderData: (previousData) => previousData, // smooth quarter switching
   })
 }

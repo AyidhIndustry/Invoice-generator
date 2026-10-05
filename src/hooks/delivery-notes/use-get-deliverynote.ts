@@ -1,17 +1,13 @@
-// hooks/useGetPurchases.ts
-import { useQuery } from '@tanstack/react-query'
-
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { getAllDeliveryNotes } from '@/features/delivery-notes/get-delivery-notes'
-import { DeliveryNote } from '@/schemas/delivery-note.schema'
-import { PurchasesFilter } from '@/features/purchases/get-purchases'
+import { FilterType } from '@/schemas/filter.type'
 
-export function useGetDeliveryNotes(filter: PurchasesFilter = { type: 'all' }) {
-  const key = ['delivery-notes', filter]
-
-  return useQuery<DeliveryNote[], Error>({
-    queryKey: key,
+export function useGetDeliveryNotes(filter: FilterType = { type: 'all' }) {
+  return useQuery({
+    queryKey: ['delivery-notes', filter],
     queryFn: () => getAllDeliveryNotes(filter),
-    keepPreviousData: true,
+    // Keep showing the current rows while a new filter loads.
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 30,
-  } as any)
+  })
 }

@@ -1,4 +1,3 @@
-// components/DeliveryNotesTable.tsx
 'use client'
 import { DeliveryNote } from '@/schemas/delivery-note.schema'
 import {
@@ -11,8 +10,6 @@ import {
 } from '../ui/table'
 import { SkeletonTable } from '../ui/skeleton-table'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { Button } from '../ui/button'
-import { Printer } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import { useDeleteDeliveryNote } from '@/hooks/delivery-notes/use-delete-deliverynote'
 import { PrintDeliveryNoteButton } from './print-delivery-note-button'

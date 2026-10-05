@@ -1,21 +1,13 @@
-// hooks/useGetMaintenanceReports.ts
-import { useQuery } from '@tanstack/react-query'
-import { Invoice } from '@/schemas/invoice.schema'
-import {
-  getAllMaintenanceReports,
-  MaintenanceReportFilter,
-} from '@/features/maintenance-report/get-maintenance-report'
-import { MaintenanceReport } from '@/schemas/maintenance-report.schema'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { getAllMaintenanceReports } from '@/features/maintenance-report/get-maintenance-report'
+import { FilterType } from '@/schemas/filter.type'
 
-export function useGetMaintenanceReports(
-  filter: MaintenanceReportFilter = { type: 'all' },
-) {
-  const key = ['maintenance-reports', filter]
-
-  return useQuery<MaintenanceReport[], Error>({
-    queryKey: key,
+export function useGetMaintenanceReports(filter: FilterType = { type: 'all' }) {
+  return useQuery({
+    queryKey: ['maintenance-reports', filter],
     queryFn: () => getAllMaintenanceReports(filter),
-    keepPreviousData: true,
+    // Keep showing the current rows while a new filter loads.
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 30,
-  } as any)
+  })
 }

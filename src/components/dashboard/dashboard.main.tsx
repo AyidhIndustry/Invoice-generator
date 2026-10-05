@@ -2,9 +2,7 @@
 
 import React, { useMemo } from 'react'
 import ContentLayout from '../layout/content.layout'
-import { CardContent } from '@/components/ui/card'
-import { Loader2, FileText, ShoppingCart, FilePlus2, Truck } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { FileText, ShoppingCart, FilePlus2, Truck } from 'lucide-react'
 import { Button } from '../ui/button'
 import Link from 'next/link'
 import { useStats } from '@/context/stat.context'

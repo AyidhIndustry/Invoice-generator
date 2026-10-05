@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CreatePurchaseDTO,
@@ -37,8 +37,8 @@ export const CreatePurchaseForm = () => {
 
   const {
     register,
+    control,
     handleSubmit,
-    watch,
     setValue,
     reset,
     formState: { errors },
@@ -47,8 +47,8 @@ export const CreatePurchaseForm = () => {
     defaultValues,
   })
 
-  const date = watch('date')
-  const subTotal = watch('subTotal')
+  const date = useWatch({ control, name: 'date' })
+  const subTotal = useWatch({ control, name: 'subTotal' })
 
   // Auto calculate tax + total
   useEffect(() => {
@@ -111,7 +111,7 @@ export const CreatePurchaseForm = () => {
                 <Calendar
                   mode="single"
                   selected={date as Date}
-                  onSelect={(d) => setValue('date', d as Date)}
+                  onSelect={(d) => d && setValue('date', d)}
                 />
               </PopoverContent>
             </Popover>

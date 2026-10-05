@@ -1,15 +1,13 @@
-// hooks/useGetPurchases.ts
-import { useQuery } from '@tanstack/react-query'
-import { getAllInvoices, InvoiceFilter } from '@/features/invoices/get-invoice'
-import { Invoice } from '@/schemas/invoice.schema'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { getAllInvoices } from '@/features/invoices/get-invoice'
+import { FilterType } from '@/schemas/filter.type'
 
-export function useGetInvoices(filter: InvoiceFilter = { type: 'all' }) {
-  const key = ['invoices', filter]
-
-  return useQuery<Invoice[], Error>({
-    queryKey: key,
+export function useGetInvoices(filter: FilterType = { type: 'all' }) {
+  return useQuery({
+    queryKey: ['invoices', filter],
     queryFn: () => getAllInvoices(filter),
-    keepPreviousData: true,
+    // Keep showing the current rows while a new filter loads.
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 30,
-  } as any)
+  })
 }

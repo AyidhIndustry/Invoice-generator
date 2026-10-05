@@ -7,12 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Purchase } from '@/schemas/purchase.schema'
+import { PurchaseListItem } from '@/features/purchases/get-purchases'
 import { SkeletonTable } from '../ui/skeleton-table'
 import { useDeletePurchase } from '@/hooks/purchases/use-delete-purchase'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { Button } from '../ui/button'
-import { Eye, Printer, View } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
 import Link from 'next/link'
 import { nf } from '@/lib/number-format'
@@ -22,7 +21,7 @@ export default function PurchasesTable({
   isPending,
   isError,
 }: {
-  purchases?: Purchase[]
+  purchases?: PurchaseListItem[]
   isPending: boolean
   isError: boolean
 }) {
@@ -67,7 +66,7 @@ export default function PurchasesTable({
           {purchases &&
             !isPending &&
             !isError &&
-            purchases.map((purchase: Purchase) => {
+            purchases.map((purchase) => {
               return (
                 <TableRow key={purchase.id}>
                   <TableCell className="font-medium">{purchase.id}</TableCell>

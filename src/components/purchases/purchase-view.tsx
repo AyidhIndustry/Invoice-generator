@@ -7,14 +7,13 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Label } from '@/components/ui/label'
 import { format } from 'date-fns'
 import { Loader2, TriangleAlert } from 'lucide-react'
 import { useGetPurchasesById } from '@/hooks/purchases/use-get-purchase-by-id'
+import { parseToDate } from '@/lib/format-timestring'
 
 type Props = { id: string }
 
@@ -29,9 +28,6 @@ const currency = (value: number | undefined) => {
 
 export default function PurchaseView({ id }: Props) {
   const { data: purchase, isPending, isError } = useGetPurchasesById(id)
-
-  const isFirestoreTimestamp = (v: any): v is { toDate: () => Date } =>
-    v && typeof v === 'object' && typeof v.toDate === 'function'
 
   if (isPending)
     return (
@@ -55,10 +51,9 @@ export default function PurchaseView({ id }: Props) {
       </div>
     )
 
-  const { id: pid, date, description, subTotal, taxTotal, total } = purchase
-  const formattedDate = isFirestoreTimestamp(purchase.date)
-    ? format(purchase.date.toDate(), 'yyyy-MM-dd')
-    : '—'
+  const { id: pid, description, subTotal, taxTotal, total } = purchase
+  const purchaseDate = parseToDate(purchase.date)
+  const formattedDate = purchaseDate ? format(purchaseDate, 'yyyy-MM-dd') : '—'
 
 
   return (

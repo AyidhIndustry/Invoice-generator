@@ -9,13 +9,10 @@ import {
 } from '@/components/ui/table'
 import { SkeletonTable } from '../ui/skeleton-table'
 import { formatTimestamp } from '@/lib/format-timestring'
-import { Eye } from 'lucide-react'
 import DeleteItemDialog from '../dialogs/delete-item.dialog'
-import Link from 'next/link'
 import { useDeleteMaintenanceReport } from '@/hooks/maintenance-report/use-delete-maintenance-report'
 import { MaintenanceReport } from '@/schemas/maintenance-report.schema'
 import { PrintMaintenanceReportButton } from './print-maintenance-report-button'
-import { nf } from '@/lib/number-format'
 
 export default function MaintenanceReportTable({
   maintenanceReports,

@@ -1,13 +1,17 @@
 'use client'
 
-import { useMemo } from 'react'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   DeliveryNote,
   DeliveryNoteSchema,
 } from '@/schemas/delivery-note.schema'
-import { PaymentTypeEnum } from '@/schemas/enums/payment-type.enum'
+import { PaymentType, PaymentTypeEnum } from '@/schemas/enums/payment-type.enum'
+import { Invoice } from '@/schemas/invoice.schema'
+import {
+  getEmptyDeliveryNoteValues,
+  invoiceToDeliveryNoteFields,
+} from '@/lib/invoice-to-delivery-note'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,25 +38,25 @@ import { format } from 'date-fns'
 import { useCreateDeliveryNote } from '@/hooks/delivery-notes/use-create-deliverynote'
 import { useGetInvoices } from '@/hooks/invoices/use-get-invoice'
 
-export default function DeliveryNoteForm() {
-  const defaultValues: DeliveryNote = {
-    invId: '',
-    date: new Date(),
-    dueDate: new Date(),
-    customer: {
-      name: '',
-      address: '',
-      VATNumber: '',
-      email: '',
-    },
-    paymentType: PaymentTypeEnum.enum.CASH,
-    items: [{ title: '', quantity: 1 }],
-    driverDetails: '',
-  }
+const MANUAL_ENTRY = '__manual__'
 
+interface DeliveryNoteFormProps {
+  /** Prefills the delivery note from this invoice. */
+  initialInvoice?: Invoice
+  /** Called after the delivery note is created; the form resets otherwise. */
+  onCreated?: () => void
+}
+
+export default function DeliveryNoteForm({
+  initialInvoice,
+  onCreated,
+}: DeliveryNoteFormProps = {}) {
   const form = useForm<DeliveryNote>({
     resolver: zodResolver(DeliveryNoteSchema),
-    defaultValues,
+    defaultValues: {
+      ...getEmptyDeliveryNoteValues(),
+      ...(initialInvoice && invoiceToDeliveryNoteFields(initialInvoice)),
+    },
   })
 
   const {
@@ -60,7 +64,6 @@ export default function DeliveryNoteForm() {
     handleSubmit,
     register,
     setValue,
-    watch,
     reset,
     formState: { errors },
   } = form
@@ -76,74 +79,44 @@ export default function DeliveryNoteForm() {
 
   const createDeliveryNoteMutation = useCreateDeliveryNote()
 
-  const { data: invoicesData, isPending: isInvoicesPending } = useGetInvoices()
+  const { data: invoices = [], isPending: isInvoicesPending } = useGetInvoices()
 
-  const invoices = invoicesData ?? []
+  const date = useWatch({ control, name: 'date' })
+  const dueDate = useWatch({ control, name: 'dueDate' })
+  const paymentType = useWatch({ control, name: 'paymentType' })
 
-  // include items in the invoiceOptions so we can populate the form items later
-  const invoiceOptions = useMemo(
-    () =>
-      invoices.map((inv: any) => ({
-        id: inv.id as string,
-        invCode: (inv.invId as string) ?? (inv.id as string),
-        customerName: inv.customer?.name ?? '—',
-        customer: inv.customer,
-        items: inv.items ?? [], // <--- items preserved
-      })),
-    [invoices],
-  )
+  const applyInvoiceFields = (invoice?: Invoice) => {
+    const empty = getEmptyDeliveryNoteValues()
+    const fields = invoice
+      ? invoiceToDeliveryNoteFields(invoice)
+      : { invId: empty.invId, customer: empty.customer, items: empty.items }
+    const options = { shouldValidate: Boolean(invoice), shouldDirty: true }
 
-  const date = watch('date')
-  const dueDate = watch('dueDate')
+    setValue('invId', fields.invId, options)
+    setValue('customer', fields.customer, options)
+    setValue('items', fields.items, options)
+  }
 
-  const handleInvoiceSelect = (invoiceId: string) => {
-    if (invoiceId === '__manual__') {
-      setValue('invId', '')
-      setValue('customer.name', '')
-      setValue('customer.email', '')
-      setValue('customer.address', '')
-      setValue('customer.VATNumber', '')
-      // reset items to a single empty row
-      setValue('items', [{ title: '', quantity: 1 }])
+  const handleInvoiceSelect = (value: string) => {
+    if (value === MANUAL_ENTRY) {
+      applyInvoiceFields(undefined)
       return
     }
 
-    if (invoiceId === '__loading__') return
-
-    const selected = invoiceOptions.find((i) => i.id === invoiceId)
-    if (!selected) return
-
-    setValue('invId', selected.invCode)
-    setValue('customer.name', selected.customer?.name ?? '')
-    setValue('customer.email', selected.customer?.email ?? '')
-    setValue('customer.address', selected.customer?.address ?? '')
-    setValue('customer.VATNumber', selected.customer?.VATNumber ?? '')
-
-    // map invoice items to only title and quantity; fallback to single empty item if none
-    const mappedItems = (selected.items &&
-      Array.isArray(selected.items) &&
-      selected.items.length > 0 &&
-      selected.items.map((it: any) => ({
-        title: String(it.title ?? ''),
-        quantity:
-          typeof it.quantity === 'number'
-            ? it.quantity
-            : Number(it.qty ?? it.quantity ?? 1),
-      }))) || [{ title: '', quantity: 1 }]
-
-    // set items in the form
-    setValue('items', mappedItems as any, {
-      shouldValidate: true,
-      shouldDirty: true,
-    })
+    const selected = invoices.find((invoice) => invoice.id === value)
+    if (selected) applyInvoiceFields(selected)
   }
 
   const onSubmit = async (data: DeliveryNote) => {
     try {
       await createDeliveryNoteMutation.mutateAsync(data)
-      reset(defaultValues)
+      if (onCreated) {
+        onCreated()
+      } else {
+        reset(getEmptyDeliveryNoteValues())
+      }
     } catch (err) {
-      console.error('Create purchase failed', err)
+      console.error('Failed to create delivery note:', err)
     }
   }
 
@@ -153,23 +126,26 @@ export default function DeliveryNoteForm() {
         <div className="space-y-2">
           <Label>Invoice Id</Label>
 
-          <Select onValueChange={handleInvoiceSelect} defaultValue="__manual__">
+          <Select
+            onValueChange={handleInvoiceSelect}
+            defaultValue={initialInvoice?.id ?? MANUAL_ENTRY}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select invoice (optional)" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Invoices</SelectLabel>
-                <SelectItem value="__manual__">Enter manually</SelectItem>
+                <SelectItem value={MANUAL_ENTRY}>Enter manually</SelectItem>
                 {isInvoicesPending && (
                   <SelectItem value="__loading__" disabled>
                     Loading invoices...
                   </SelectItem>
                 )}
                 {!isInvoicesPending &&
-                  invoiceOptions.map((inv) => (
-                    <SelectItem key={inv.id} value={inv.id}>
-                      {inv.invCode} — {inv.customerName}
+                  invoices.map((invoice) => (
+                    <SelectItem key={invoice.id} value={invoice.id}>
+                      {invoice.id} — {invoice.customer?.name ?? '—'}
                     </SelectItem>
                   ))}
               </SelectGroup>
@@ -191,8 +167,8 @@ export default function DeliveryNoteForm() {
         <div>
           <Label>Payment Type</Label>
           <Select
-            onValueChange={(val) => setValue('paymentType', val as any)}
-            value={watch('paymentType') as unknown as string}
+            onValueChange={(val) => setValue('paymentType', val as PaymentType)}
+            value={paymentType}
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select payment type" />
@@ -230,7 +206,7 @@ export default function DeliveryNoteForm() {
               <Calendar
                 mode="single"
                 selected={date}
-                onSelect={(day) => setValue('date', day as Date)}
+                onSelect={(day) => day && setValue('date', day)}
               />
             </PopoverContent>
           </Popover>
@@ -256,7 +232,7 @@ export default function DeliveryNoteForm() {
               <Calendar
                 mode="single"
                 selected={dueDate}
-                onSelect={(day) => setValue('dueDate', day as Date)}
+                onSelect={(day) => day && setValue('dueDate', day)}
               />
             </PopoverContent>
           </Popover>
