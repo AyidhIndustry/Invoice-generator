@@ -1,3 +1,4 @@
+import { addCustomerAccountIfNew } from '@/features/accounts/add-customer-account'
 import { db } from '@/lib/firebase-client'
 import { parseOrThrow } from '@/lib/firestore'
 import { CreateInvoiceDTO } from '@/schemas/invoice.schema'
@@ -34,5 +35,6 @@ export async function updateInvoice({ id, payload }: UpdateInvoiceInput) {
     updatedAt: serverTimestamp(),
   })
 
-  return { id }
+  const customerAccount = await addCustomerAccountIfNew(data.customer)
+  return { id, customerAccount }
 }

@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import { createDeliveryNote } from '@/features/delivery-notes/create-delivery-note'
+import { notifyCustomerAccount } from '@/hooks/accounts/notify-customer-account'
 
 export function useCreateDeliveryNote() {
   const qc = useQueryClient()
@@ -11,10 +12,11 @@ export function useCreateDeliveryNote() {
       toast.dismiss()
       toast.info('Creating delivery note...')
     },
-    onSuccess: () => {
+    onSuccess: ({ customerAccount }) => {
       toast.dismiss()
       toast.success('Delivery note created.')
       qc.invalidateQueries({ queryKey: ['delivery-notes'] })
+      notifyCustomerAccount(qc, customerAccount)
     },
     onError: (err) => {
       toast.dismiss()
