@@ -5,13 +5,14 @@ import { Button } from '../ui/button'
 import { Plus } from 'lucide-react'
 import DeliveryNotesTable from './delivery-note.table'
 import { useState } from 'react'
-import { useGetDeliveryNotes } from '@/hooks/delivery-notes/use-get-deliverynote'
+import { usePaginatedDeliveryNotes } from '@/hooks/delivery-notes/use-get-deliverynote'
 import { FilterType } from '@/schemas/filter.type'
 import TableFilter from '../filter'
+import { LoadMore } from '../ui/load-more'
 
 const DeliveryNotes = () => {
   const [filter, setFilter] = useState<FilterType>({ type: 'all' })
-  const { data: deliveryNotes, isPending, isError } = useGetDeliveryNotes(filter)
+  const deliveryNotes = usePaginatedDeliveryNotes(filter)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -28,8 +29,25 @@ const DeliveryNotes = () => {
             </Button>
           </Link>
         </div>
-        <TableFilter filters={filter} setFilters={setFilter} />
-        <DeliveryNotesTable deliverynotes={deliveryNotes} isPending={isPending} isError={isError}/>
+        <TableFilter
+          filters={filter}
+          setFilters={setFilter}
+          refetch={deliveryNotes.refetch}
+          isFetching={deliveryNotes.isRefreshing}
+        />
+        <DeliveryNotesTable
+          deliverynotes={deliveryNotes.items}
+          isPending={deliveryNotes.isPending}
+          isError={deliveryNotes.isError}
+        />
+        <LoadMore
+          shown={deliveryNotes.items.length}
+          total={deliveryNotes.total}
+          hasMore={deliveryNotes.hasNextPage}
+          isLoading={deliveryNotes.isFetchingNextPage}
+          isError={deliveryNotes.isFetchNextPageError}
+          onLoadMore={() => deliveryNotes.fetchNextPage()}
+        />
       </div>
     </ContentLayout>
   )

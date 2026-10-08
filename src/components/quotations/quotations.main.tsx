@@ -5,13 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useGetQuotations } from '@/hooks/quotations/use-get-quotation'
+import { usePaginatedQuotations } from '@/hooks/quotations/use-get-quotation'
 import TableFilter from '../filter'
+import { LoadMore } from '../ui/load-more'
 import QuotationTable from './quotation-table'
 
 const Quotations = () => {
   const [filter, setFilter] = useState<FilterType>({ type: 'all' })
-  const { data: quotations, isPending, isError } = useGetQuotations(filter)
+  const quotations = usePaginatedQuotations(filter)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -29,8 +30,25 @@ const Quotations = () => {
             </Button>
           </Link>
         </div>
-        <TableFilter filters={filter} setFilters={setFilter} />
-        <QuotationTable quotations={quotations} isPending={isPending} isError={isError}/>
+        <TableFilter
+          filters={filter}
+          setFilters={setFilter}
+          refetch={quotations.refetch}
+          isFetching={quotations.isRefreshing}
+        />
+        <QuotationTable
+          quotations={quotations.items}
+          isPending={quotations.isPending}
+          isError={quotations.isError}
+        />
+        <LoadMore
+          shown={quotations.items.length}
+          total={quotations.total}
+          hasMore={quotations.hasNextPage}
+          isLoading={quotations.isFetchingNextPage}
+          isError={quotations.isFetchNextPageError}
+          onLoadMore={() => quotations.fetchNextPage()}
+        />
       </div>
     </ContentLayout>
   )

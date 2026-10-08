@@ -5,13 +5,14 @@ import { Button } from '../ui/button'
 import Link from 'next/link'
 import InvoicesTable from './invoices.table'
 import { useState } from 'react'
-import { useGetInvoices } from '@/hooks/invoices/use-get-invoice'
+import { usePaginatedInvoices } from '@/hooks/invoices/use-get-invoice'
 import { FilterType } from '@/schemas/filter.type'
 import TableFilter from '../filter'
+import { LoadMore } from '../ui/load-more'
 
 const Invoices = () => {
   const [filters, setFilters] = useState<FilterType>({ type: 'all' })
-  const { data: invoices, isPending, isError } = useGetInvoices(filters)
+  const invoices = usePaginatedInvoices(filters)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -26,11 +27,24 @@ const Invoices = () => {
             </Button>
           </Link>
         </div>
-        <TableFilter filters={filters} setFilters={setFilters} />
+        <TableFilter
+          filters={filters}
+          setFilters={setFilters}
+          refetch={invoices.refetch}
+          isFetching={invoices.isRefreshing}
+        />
         <InvoicesTable
-          invoices={invoices}
-          isError={isError}
-          isPending={isPending}
+          invoices={invoices.items}
+          isPending={invoices.isPending}
+          isError={invoices.isError}
+        />
+        <LoadMore
+          shown={invoices.items.length}
+          total={invoices.total}
+          hasMore={invoices.hasNextPage}
+          isLoading={invoices.isFetchingNextPage}
+          isError={invoices.isFetchNextPageError}
+          onLoadMore={() => invoices.fetchNextPage()}
         />
       </div>
     </ContentLayout>

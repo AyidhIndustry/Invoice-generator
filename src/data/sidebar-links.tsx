@@ -6,6 +6,7 @@ import {
   Settings,
   Truck,
   Wrench,
+  Building2,
 } from 'lucide-react'
 
 export const sidebarLinks = [
@@ -16,5 +17,6 @@ export const sidebarLinks = [
   { href: '/purchases', label: 'Purchases', icon: ShoppingCart },
   { href: '/maintenance-report', label: 'Maintenance Report', icon: Wrench },
   { href: '/quaterly-report', label: 'Quarterly Report', icon: BarChart3 },
+  { href: '/accounts', label: 'Accounts', icon: Building2 },
   { href: '/settings', label: 'Company Info', icon: Settings },
 ]

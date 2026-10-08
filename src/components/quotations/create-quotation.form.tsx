@@ -10,6 +10,10 @@ import { Plus, Trash2, Loader2 } from 'lucide-react'
 import { companyInfo } from '@/data/company-info'
 import { numberToWords } from 'convert-number-to-words'
 import { useCreateQuotation } from '@/hooks/quotations/use-create-quotation'
+import {
+  AccountNameCombobox,
+  accountToCustomer,
+} from '@/components/accounts/account-name-combobox'
 import { computeInvoiceTotals, TAX_PERCENT } from '@/lib/invoice-totals'
 import {
   CreateQuotationDTO,
@@ -162,12 +166,14 @@ export default function CreateQuotationForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label>Customer Name *</Label>
-            <Input
-              placeholder="Customer full name"
+            <AccountNameCombobox
               value={customer.name}
-              onChange={(e) =>
-                setCustomer((s) => ({ ...s, name: e.target.value }))
-              }
+              onChange={(name) => setCustomer((s) => ({ ...s, name }))}
+              onSelect={(account) => {
+                const { name, address, VATNumber, email } =
+                  accountToCustomer(account)
+                setCustomer({ name, address, VATNumber, email })
+              }}
             />
           </div>
           <div>

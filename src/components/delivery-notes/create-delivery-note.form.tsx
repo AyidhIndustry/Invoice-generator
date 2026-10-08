@@ -1,6 +1,6 @@
 'use client'
 
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   DeliveryNote,
@@ -34,6 +34,10 @@ import {
 import { Calendar } from '@/components/ui/calendar'
 import { Textarea } from '@/components/ui/textarea'
 import { Plus, Trash2 } from 'lucide-react'
+import {
+  AccountNameCombobox,
+  accountToCustomer,
+} from '@/components/accounts/account-name-combobox'
 import { format } from 'date-fns'
 import { useCreateDeliveryNote } from '@/hooks/delivery-notes/use-create-deliverynote'
 import { useGetInvoices } from '@/hooks/invoices/use-get-invoice'
@@ -251,10 +255,22 @@ export default function DeliveryNoteForm({
           {/* Customer Name */}
           <div className="w-full">
             <Label>Customer Name *</Label>
-            <Input
-              {...register('customer.name')}
-              placeholder="Customer full name"
-              className="w-full"
+            <Controller
+              control={control}
+              name="customer.name"
+              render={({ field }) => (
+                <AccountNameCombobox
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  onSelect={(account) =>
+                    setValue('customer', accountToCustomer(account), {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  className="w-full"
+                />
+              )}
             />
             {errors.customer?.name && (
               <p className="text-xs text-destructive mt-1">

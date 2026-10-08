@@ -1,7 +1,14 @@
-import { getFilteredDocuments } from '@/lib/firestore'
+import { getDocumentsPage, PageCursor } from '@/lib/firestore'
 import { FilterType } from '@/schemas/filter.type'
 import { MaintenanceReport } from '@/schemas/maintenance-report.schema'
 
-export function getAllMaintenanceReports(filter?: FilterType) {
-  return getFilteredDocuments<MaintenanceReport>('maintenance-reports', filter)
+export function getMaintenanceReportsPage(
+  filter: FilterType,
+  cursor: PageCursor,
+) {
+  return getDocumentsPage<MaintenanceReport>(
+    'maintenance-reports',
+    filter,
+    cursor,
+  )
 }

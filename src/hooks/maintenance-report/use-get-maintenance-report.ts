@@ -1,13 +1,9 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
-import { getAllMaintenanceReports } from '@/features/maintenance-report/get-maintenance-report'
+import { getMaintenanceReportsPage } from '@/features/maintenance-report/get-maintenance-report'
+import { usePaginatedDocuments } from '@/hooks/use-paginated-documents'
 import { FilterType } from '@/schemas/filter.type'
 
-export function useGetMaintenanceReports(filter: FilterType = { type: 'all' }) {
-  return useQuery({
-    queryKey: ['maintenance-reports', filter],
-    queryFn: () => getAllMaintenanceReports(filter),
-    // Keep showing the current rows while a new filter loads.
-    placeholderData: keepPreviousData,
-    staleTime: 1000 * 30,
-  })
+export function usePaginatedMaintenanceReports(filter: FilterType) {
+  return usePaginatedDocuments(['maintenance-reports', 'paginated', filter], (cursor) =>
+    getMaintenanceReportsPage(filter, cursor),
+  )
 }

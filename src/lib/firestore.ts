@@ -3,13 +3,17 @@ import {
   deleteDoc,
   doc,
   DocumentData,
+  getCountFromServer,
   getDoc,
   getDocs,
+  limit,
   orderBy,
   query,
   QueryConstraint,
+  QueryDocumentSnapshot,
   runTransaction,
   serverTimestamp,
+  startAfter,
   Timestamp,
   where,
 } from 'firebase/firestore'
@@ -24,6 +28,7 @@ export type CollectionName =
   | 'purchases'
   | 'delivery-notes'
   | 'maintenance-reports'
+  | 'accounts'
 
 /** Returns a readable message from any thrown value. */
 export function getErrorMessage(err: unknown, fallback: string): string {
@@ -129,20 +134,73 @@ export async function getFilteredDocuments<T>(
   collectionName: CollectionName,
   filter: FilterType = { type: 'all' },
 ): Promise<T[]> {
+  const snap = await getDocs(
+    query(collection(db, collectionName), ...getFilterConstraints(filter)),
+  )
+
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T)
+}
+
+export const PAGE_SIZE = 20
+
+/** The last document of a page; the next page starts after it. */
+export type PageCursor = QueryDocumentSnapshot<DocumentData> | null
+
+export interface DocumentsPage<T> {
+  items: T[]
+  /** Cursor for the following page, or null on the last page. */
+  next: PageCursor
+  /** Matching documents across all pages. Only set on the first page. */
+  total?: number
+}
+
+/**
+ * Fetches one page of `getFilteredDocuments`, starting after `cursor`.
+ *
+ * One extra document is requested to tell whether another page exists, and
+ * the first page also counts the matches with an aggregation query, which
+ * costs far fewer reads than loading every document.
+ */
+export async function getDocumentsPage<T>(
+  collectionName: CollectionName,
+  filter: FilterType = { type: 'all' },
+  cursor: PageCursor = null,
+  pageSize: number = PAGE_SIZE,
+): Promise<DocumentsPage<T>> {
+  const filtered = query(
+    collection(db, collectionName),
+    ...getFilterConstraints(filter),
+  )
+  const pageQuery = cursor
+    ? query(filtered, startAfter(cursor), limit(pageSize + 1))
+    : query(filtered, limit(pageSize + 1))
+
+  const [snap, total] = await Promise.all([
+    getDocs(pageQuery),
+    cursor
+      ? undefined
+      : getCountFromServer(filtered).then((count) => count.data().count),
+  ])
+
+  const docs = snap.docs.slice(0, pageSize)
+
+  return {
+    items: docs.map((d) => ({ id: d.id, ...d.data() }) as T),
+    next: snap.docs.length > pageSize ? docs[docs.length - 1] : null,
+    total,
+  }
+}
+
+function getFilterConstraints(filter: FilterType): QueryConstraint[] {
   const range = getFilterRange(filter)
-  const constraints: QueryConstraint[] = range
+
+  return range
     ? [
         where('date', '>=', Timestamp.fromDate(range.start)),
         where('date', '<=', Timestamp.fromDate(range.end)),
         orderBy('date', 'desc'),
       ]
     : [orderBy('createdAt', 'desc')]
-
-  const snap = await getDocs(
-    query(collection(db, collectionName), ...constraints),
-  )
-
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T)
 }
 
 function getFilterRange(filter: FilterType): { start: Date; end: Date } | null {

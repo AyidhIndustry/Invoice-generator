@@ -32,7 +32,7 @@ export function Sidebar() {
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        <div className="mb-12 mt-12 md:mt-0">
+        <div className="mt-12 md:mt-0">
           <Link
             href="/"
             className="block mb-6"
@@ -47,9 +47,9 @@ export function Sidebar() {
               priority
             />
           </Link>
-          <p className="text-xs font-semibold uppercase tracking-wider">
+          {/* <p className="text-xs font-semibold uppercase tracking-wider">
             Invoice Manager
-          </p>
+          </p> */}
         </div>
 
         <nav className="space-y-1">
@@ -59,8 +59,9 @@ export function Sidebar() {
               href={href}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium',
-                pathname === href
-                  ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
+                // Nested pages (e.g. /invoices/create) highlight their section.
+                pathname === href || pathname.startsWith(`${href}/`)
+                  ?'bg-sidebar-primary text-sidebar-primary-foreground shadow-md'
                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               )}
               onClick={() => setIsOpen(false)}

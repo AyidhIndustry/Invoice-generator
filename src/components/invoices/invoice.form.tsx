@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import { format } from 'date-fns'
 import { numberToWords } from 'convert-number-to-words'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -18,6 +18,10 @@ import { Calendar } from '@/components/ui/calendar'
 import { Plus, Trash2 } from 'lucide-react'
 import { InvoiceFormValues } from '@/schemas/invoice.schema'
 import { computeInvoiceTotals, TAX_PERCENT } from '@/lib/invoice-totals'
+import {
+  AccountNameCombobox,
+  accountToCustomer,
+} from '@/components/accounts/account-name-combobox'
 
 const emptyItem = () => ({
   title: '',
@@ -183,9 +187,20 @@ export default function InvoiceForm({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Name *</Label>
-              <Input
-                {...register('customer.name')}
-                placeholder="Customer full name"
+              <Controller
+                control={control}
+                name="customer.name"
+                render={({ field }) => (
+                  <AccountNameCombobox
+                    value={field.value ?? ''}
+                    onChange={field.onChange}
+                    onSelect={(account) =>
+                      setValue('customer', accountToCustomer(account), {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                )}
               />
             </div>
 

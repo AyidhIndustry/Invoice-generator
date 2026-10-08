@@ -6,12 +6,13 @@ import Link from 'next/link'
 import PurchasesTable from './purchase.table'
 import { useState } from 'react'
 import { FilterType } from '@/schemas/filter.type'
-import { useGetPurchases } from '@/hooks/purchases/use-get-purchase'
+import { usePaginatedPurchases } from '@/hooks/purchases/use-get-purchase'
 import TableFilter from '../filter'
+import { LoadMore } from '../ui/load-more'
 
 const Purchases = () => {
   const [filter, setFilter] = useState<FilterType>({ type: 'all' })
-  const { data: purchases, isPending, isError } = useGetPurchases(filter)
+  const purchases = usePaginatedPurchases(filter)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -29,11 +30,24 @@ const Purchases = () => {
             </Button>
           </Link>
         </div>
-        <TableFilter filters={filter} setFilters={setFilter} />
+        <TableFilter
+          filters={filter}
+          setFilters={setFilter}
+          refetch={purchases.refetch}
+          isFetching={purchases.isRefreshing}
+        />
         <PurchasesTable
-          purchases={purchases}
-          isError={isError}
-          isPending={isPending}
+          purchases={purchases.items}
+          isPending={purchases.isPending}
+          isError={purchases.isError}
+        />
+        <LoadMore
+          shown={purchases.items.length}
+          total={purchases.total}
+          hasMore={purchases.hasNextPage}
+          isLoading={purchases.isFetchingNextPage}
+          isError={purchases.isFetchNextPageError}
+          onLoadMore={() => purchases.fetchNextPage()}
         />
       </div>
     </ContentLayout>

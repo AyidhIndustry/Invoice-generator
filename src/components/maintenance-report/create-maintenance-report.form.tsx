@@ -11,6 +11,10 @@ import { Trash2, Plus } from 'lucide-react'
 import { CreateMaintenanceReportDTO } from '@/schemas/maintenance-report.schema'
 import z from 'zod'
 import { useCreateMaintenanceReport } from '@/hooks/maintenance-report/use-create-maintenance-report'
+import {
+  AccountNameCombobox,
+  accountToCustomer,
+} from '@/components/accounts/account-name-combobox'
 
 export default function CreateMaintenanceReportForm() {
   const [formData, setFormData] = useState(defaultMaintenanceReport)
@@ -104,15 +108,22 @@ export default function CreateMaintenanceReportForm() {
         <CardContent className="grid md:grid-cols-2 gap-4">
           <div>
             <Label>Customer Name</Label>
-            <Input
-              placeholder="Full name of the customer"
+            <AccountNameCombobox
               value={formData.customer.name}
-              onChange={(e) =>
+              onChange={(name) =>
                 setFormData((p) => ({
                   ...p,
-                  customer: { ...p.customer, name: e.target.value },
+                  customer: { ...p.customer, name },
                 }))
               }
+              onSelect={(account) => {
+                const { name, phoneNumber, email, address } =
+                  accountToCustomer(account)
+                setFormData((p) => ({
+                  ...p,
+                  customer: { ...p.customer, name, phoneNumber, email, address },
+                }))
+              }}
             />
             {fieldError('customer.name')}
           </div>

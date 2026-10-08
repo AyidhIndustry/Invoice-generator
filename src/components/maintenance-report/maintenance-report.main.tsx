@@ -6,12 +6,13 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { FilterType } from '@/schemas/filter.type'
 import TableFilter from '../filter'
+import { LoadMore } from '../ui/load-more'
 import MaintenanceReportTable from './maintenance-report.table'
-import { useGetMaintenanceReports } from '@/hooks/maintenance-report/use-get-maintenance-report'
+import { usePaginatedMaintenanceReports } from '@/hooks/maintenance-report/use-get-maintenance-report'
 
 const MaintenanceReport = () => {
   const [filter, setFilter] = useState<FilterType>({ type: 'all' })
-  const { data: reports, isPending, isError } = useGetMaintenanceReports(filter)
+  const reports = usePaginatedMaintenanceReports(filter)
   return (
     <ContentLayout>
       <div className="space-y-6">
@@ -29,11 +30,24 @@ const MaintenanceReport = () => {
             </Button>
           </Link>
         </div>
-        <TableFilter filters={filter} setFilters={setFilter} />
+        <TableFilter
+          filters={filter}
+          setFilters={setFilter}
+          refetch={reports.refetch}
+          isFetching={reports.isRefreshing}
+        />
         <MaintenanceReportTable
-          maintenanceReports={reports}
-          isPending={isPending}
-          isError={isError}
+          maintenanceReports={reports.items}
+          isPending={reports.isPending}
+          isError={reports.isError}
+        />
+        <LoadMore
+          shown={reports.items.length}
+          total={reports.total}
+          hasMore={reports.hasNextPage}
+          isLoading={reports.isFetchingNextPage}
+          isError={reports.isFetchNextPageError}
+          onLoadMore={() => reports.fetchNextPage()}
         />
       </div>
     </ContentLayout>
